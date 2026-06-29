@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import React, { useRef, useState, useEffect } from 'react';
 import { 
@@ -799,6 +800,7 @@ export function ShapeBuilder({
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedShapeIds, tool, shapes, copiedShapes]);
 
   // Actual vector drawing function
