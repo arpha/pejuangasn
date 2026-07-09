@@ -5,7 +5,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { 
   Square, Circle, Triangle, Type, Eraser, 
   Trash2, Undo, Save, X, Edit3, Minimize2,
-  ArrowRight, ArrowLeftRight, Moon, Star, Sun, Hexagon, Diamond, Heart,
+  ArrowRight, ArrowLeftRight, Moon, Star, Sun, Hexagon, Diamond, Heart, Droplet,
   MousePointer, Move, Copy, FlipHorizontal, FlipVertical, RotateCw
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -21,7 +21,7 @@ interface ShapeBuilderProps {
   title?: string;
 }
 
-type Tool = 'select' | 'pencil' | 'line' | 'arrow' | 'arrow-double' | 'arrow-block' | 'rectangle' | 'trapezium' | 'rhombus' | 'circle' | 'semicircle' | 'triangle' | 'triangle-equilateral' | 'triangle-right' | 'polygon' | 'star' | 'crescent' | 'sun' | 'text' | 'eraser' | 'oval' | 'semioval' | 'heart' | 'semiheart';
+type Tool = 'select' | 'pencil' | 'line' | 'arrow' | 'arrow-double' | 'arrow-block' | 'rectangle' | 'trapezium' | 'rhombus' | 'circle' | 'semicircle' | 'triangle' | 'triangle-equilateral' | 'triangle-right' | 'polygon' | 'star' | 'crescent' | 'sun' | 'text' | 'eraser' | 'oval' | 'semioval' | 'heart' | 'semiheart' | 'droplet';
 
 interface Point {
   x: number;
@@ -1077,6 +1077,34 @@ export function ShapeBuilder({
         ctx.fill();
       }
       ctx.stroke();
+    } else if (shape.type === 'droplet') {
+      ctx.beginPath();
+      const topY = Math.min(startY, endY);
+      const bottomY = Math.max(startY, endY);
+      const leftX = Math.min(startX, endX);
+      const rightX = Math.max(startX, endX);
+      const w = rightX - leftX;
+      const h = bottomY - topY;
+      const centerX = leftX + w / 2;
+
+      ctx.moveTo(centerX, topY);
+      // Left side curve down to bottom center
+      ctx.bezierCurveTo(
+        leftX, topY + h * 0.4,
+        leftX, bottomY,
+        centerX, bottomY
+      );
+      // Right side curve up to top center
+      ctx.bezierCurveTo(
+        rightX, bottomY,
+        rightX, topY + h * 0.4,
+        centerX, topY
+      );
+      ctx.closePath();
+      if (shape.fillColor !== 'transparent') {
+        ctx.fill();
+      }
+      ctx.stroke();
     } else if (shape.type === 'semicircle') {
       const radius = Math.sqrt(Math.pow(startX - endX, 2) + Math.pow(startY - endY, 2));
       ctx.beginPath();
@@ -1290,6 +1318,7 @@ export function ShapeBuilder({
                   { id: 'semioval', label: '1/2 Oval', icon: Circle },
                   { id: 'heart', label: 'Hati', icon: Heart },
                   { id: 'semiheart', label: '1/2 Hati', icon: Heart },
+                  { id: 'droplet', label: 'Tetesan Air', icon: Droplet },
                   { id: 'triangle', label: 'S. Sama Kaki', icon: Triangle },
                   { id: 'triangle-equilateral', label: 'S. Sama Sisi', icon: Triangle },
                   { id: 'triangle-right', label: 'S. Siku-Siku', icon: Triangle },
