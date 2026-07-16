@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   
   if (!blog) {
     return {
-      title: 'Artikel Tidak Ditemukan | PejuangASN',
+      title: 'Artikel Tidak Ditemukan | Kawan ASN',
       description: 'Artikel yang Anda cari tidak dapat ditemukan.',
     };
   }
@@ -45,7 +45,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const seoKeywords = blog.seo_keywords || 'cpns, pppk, tryout cat, asn, materi belajar, tips lolos';
 
   const metadata: Metadata = {
-    title: `${seoTitle} | PejuangASN`,
+    title: `${seoTitle} | Kawan ASN`,
     description: seoDescription,
     keywords: seoKeywords,
     openGraph: {

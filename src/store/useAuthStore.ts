@@ -20,7 +20,7 @@ export const useAuthStore = create<AuthState>()(
       logout: () => set({ profile: null, loading: false }),
     }),
     {
-      name: 'pejuangasn-auth-session',
+      name: 'kawanasn-auth-session',
     }
   )
 );

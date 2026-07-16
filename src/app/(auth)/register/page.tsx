@@ -89,7 +89,7 @@ export default function RegisterPage() {
       };
 
       setProfile(clientProfile);
-      toast.success('Pendaftaran berhasil! Selamat datang di PejuangASN.');
+      toast.success('Pendaftaran berhasil! Selamat datang di Kawan ASN.');
       router.push('/dashboard');
     } catch (err) {
       const error = err as Error;
@@ -119,7 +119,7 @@ export default function RegisterPage() {
             <GraduationCap className="h-8 w-8" />
           </div>
           <div className="space-y-1">
-            <CardTitle className="text-2xl font-black tracking-tight text-gray-900 dark:text-white">Daftar PejuangASN</CardTitle>
+            <CardTitle className="text-2xl font-black tracking-tight text-gray-900 dark:text-white">Daftar Kawan ASN</CardTitle>
             <CardDescription className="text-gray-500 dark:text-slate-400 text-sm">Mulai langkah sukses Anda menjadi ASN hari ini</CardDescription>
           </div>
         </CardHeader>

@@ -94,7 +94,7 @@ export default function Home() {
     {
       name: 'Rina Sartika',
       role: 'Lolos CPNS Kemenkeu 2025',
-      text: 'PejuangASN membantu saya mengenal pola soal CAT BKN. Simulasi tryoutnya sangat mirip dengan ujian asli. Skor SKD saya 420!',
+      text: 'Kawan ASN membantu saya mengenal pola soal CAT BKN. Simulasi tryoutnya sangat mirip dengan ujian asli. Skor SKD saya 420!',
       rating: 5,
     },
     {
@@ -126,7 +126,7 @@ export default function Home() {
               <GraduationCap className="h-5 w-5 text-white" />
             </div>
             <span className="font-black text-lg tracking-tight text-gray-900 dark:text-white">
-              PejuangASN
+              Kawan ASN
             </span>
           </div>
           <nav className="flex items-center gap-4">
@@ -158,7 +158,7 @@ export default function Home() {
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-gray-900 dark:text-white leading-[1.1]">
               Lolos CPNS Impian dengan Simulasi CAT{' '}
               <span className="bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 bg-clip-text text-transparent">
-                PejuangASN
+                Kawan ASN
               </span>
             </h1>
 
@@ -236,7 +236,7 @@ export default function Home() {
               <span className="bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 bg-clip-text text-transparent">Lolos CPNS</span>
             </h2>
             <p className="text-gray-500 dark:text-slate-400 mt-3 text-sm sm:text-base">
-              Dari materi belajar hingga simulasi ujian nyata — PejuangASN menyediakan ekosistem persiapan CPNS yang lengkap dan terintegrasi.
+              Dari materi belajar hingga simulasi ujian nyata — Kawan ASN menyediakan ekosistem persiapan CPNS yang lengkap dan terintegrasi.
             </p>
           </div>
 
@@ -292,7 +292,7 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { step: '01', title: 'Daftar Gratis', desc: 'Buat akun PejuangASN secara gratis dalam hitungan detik, tanpa biaya apapun.', icon: Users },
+              { step: '01', title: 'Daftar Gratis', desc: 'Buat akun Kawan ASN secara gratis dalam hitungan detik, tanpa biaya apapun.', icon: Users },
               { step: '02', title: 'Pelajari Materi', desc: 'Baca modul terstruktur TWK, TIU, TKP. Selesaikan quiz setiap modul untuk menandai progress Anda.', icon: BookMarked },
               { step: '03', title: 'Ikuti Tryout CAT', desc: 'Uji kemampuan dengan simulasi tryout 110 soal yang mirip ujian sesungguhnya dengan timer otomatis.', icon: Clock },
               { step: '04', title: 'Analisis & Tingkatkan', desc: 'Lihat skor passing grade, ranking di papan peringkat, dan terus latihan hingga siap hari H.', icon: TrendingUp },
@@ -389,7 +389,7 @@ export default function Home() {
             </div>
             <h2 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight">
               Cerita Sukses{' '}
-              <span className="bg-gradient-to-r from-rose-600 to-pink-600 dark:from-rose-400 dark:to-pink-400 bg-clip-text text-transparent">PejuangASN</span>
+              <span className="bg-gradient-to-r from-rose-600 to-pink-600 dark:from-rose-400 dark:to-pink-400 bg-clip-text text-transparent">Kawan ASN</span>
             </h2>
           </div>
 
@@ -465,7 +465,7 @@ export default function Home() {
             Siap Menjadi ASN?
           </h2>
           <p className="text-gray-500 dark:text-slate-400 mb-8 text-base max-w-lg mx-auto">
-            Bergabung dengan ribuan pejuang yang sudah mempersiapkan diri di PejuangASN. Daftar gratis dan mulai tryout pertamamu hari ini.
+            Bergabung dengan ribuan pejuang yang sudah mempersiapkan diri di Kawan ASN. Daftar gratis dan mulai tryout pertamamu hari ini.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link href="/register">
@@ -491,7 +491,7 @@ export default function Home() {
                 <div className="bg-gradient-to-tr from-indigo-500 to-indigo-600 p-1.5 rounded-lg">
                   <GraduationCap className="h-5 w-5 text-white" />
                 </div>
-                <span className="font-black text-lg text-gray-900 dark:text-white">PejuangASN</span>
+                <span className="font-black text-lg text-gray-900 dark:text-white">Kawan ASN</span>
               </div>
               <p className="text-sm text-gray-500 dark:text-slate-500 max-w-xs leading-relaxed">
                 Platform simulasi tryout CAT CPNS terlengkap di Indonesia. Belajar materi, ikuti tryout, raih passing grade, dan lolos seleksi impian Anda.
@@ -517,7 +517,7 @@ export default function Home() {
             </div>
           </div>
           <div className="border-t border-gray-200 dark:border-white/[0.04] pt-6 text-center">
-            <p className="text-xs text-gray-400 dark:text-slate-600">© {new Date().getFullYear()} PejuangASN. Hak Cipta Dilindungi.</p>
+            <p className="text-xs text-gray-400 dark:text-slate-600">© {new Date().getFullYear()} Kawan ASN. Hak Cipta Dilindungi.</p>
           </div>
         </div>
       </footer>

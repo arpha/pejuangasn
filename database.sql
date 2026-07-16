@@ -1,4 +1,4 @@
--- SCHEMA SETUP FOR PEJUANGASN
+-- SCHEMA SETUP FOR KAWAN ASN
 
 -- 1. Create Profiles Table (Linked to Supabase Auth)
 CREATE TABLE IF NOT EXISTS public.profiles (

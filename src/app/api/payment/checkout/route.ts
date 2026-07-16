@@ -209,7 +209,7 @@ export async function POST(req: NextRequest) {
             id: 'PREMIUM_UPGRADE',
             price: baseAmount,
             quantity: 1,
-            name: 'Upgrade Akun Pejuang Premium'
+            name: 'Upgrade Akun Premium Kawan ASN'
           }
         ];
         if (discountAmount > 0) {

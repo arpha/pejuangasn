@@ -119,7 +119,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="flex items-center gap-2">
           <GraduationCap className="h-7 w-7 text-indigo-600 dark:text-indigo-400" />
           <span className="font-extrabold text-lg tracking-tight text-indigo-600 dark:text-indigo-400">
-            PejuangASN
+            Kawan ASN
           </span>
         </div>
         <div className="flex items-center gap-3">
@@ -161,7 +161,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <GraduationCap className="h-7 w-7 text-indigo-600 dark:text-indigo-400 shrink-0" />
               {!isSidebarCollapsed && (
                 <span className="font-extrabold text-lg tracking-tight text-indigo-600 dark:text-indigo-400 whitespace-nowrap">
-                  PejuangASN
+                  Kawan ASN
                 </span>
               )}
             </div>

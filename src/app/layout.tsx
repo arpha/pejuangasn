@@ -15,7 +15,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "PejuangASN - Media Pembelajaran & Tryout CAT SKD CPNS",
+  title: "Kawan ASN - Media Pembelajaran & Tryout CAT SKD CPNS",
   description: "Platform latihan ujian CAT SKD CPNS terlengkap dengan materi belajar interaktif dan pembahasan detail.",
 };
 

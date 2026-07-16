@@ -324,7 +324,7 @@ ALTER TABLE public.transactions ADD COLUMN IF NOT EXISTS voucher_code TEXT DEFAU
                     type="text" 
                     value={formData.code} 
                     onChange={handleCodeChange} 
-                    placeholder="Contoh: PEJUANGHEMAT"
+                    placeholder="Contoh: KAWANHEMAT"
                     className="h-10 bg-muted/30 border-border text-foreground font-mono tracking-wider focus-visible:ring-indigo-500 uppercase"
                     required
                     disabled={!!editingVoucher}

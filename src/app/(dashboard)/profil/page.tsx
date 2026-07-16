@@ -36,7 +36,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 // Local storage key for active tab to maintain state on refresh
-const ACTIVE_TAB_KEY = 'pejuangasn-profil-active-tab';
+const ACTIVE_TAB_KEY = 'kawanasn-profil-active-tab';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -619,7 +619,7 @@ export default function ProfilePage() {
       // Create random suffix
       const suffix = Math.random().toString(36).substring(3, 7).toUpperCase();
       const codeBase = profile.full_name?.replace(/\s+/g, '').substring(0, 8).toUpperCase() || 'REF';
-      const refCode = `PEJUANG_${codeBase}_${suffix}`;
+      const refCode = `KAWAN_${codeBase}_${suffix}`;
 
       const { data, error } = await supabase
         .from('affiliates')
@@ -830,7 +830,7 @@ export default function ProfilePage() {
             <Card className="bg-card border-border shadow-sm rounded-2xl overflow-hidden">
               <CardHeader className="p-6 sm:p-8">
                 <CardTitle className="text-xl font-extrabold text-foreground">Ubah Kata Sandi</CardTitle>
-                <CardDescription className="text-sm">Ganti kata sandi akun PejuangASN Anda secara teratur.</CardDescription>
+                <CardDescription className="text-sm">Ganti kata sandi akun Kawan ASN Anda secara teratur.</CardDescription>
               </CardHeader>
               <form onSubmit={handleChangePassword}>
                 <CardContent className="space-y-5 px-6 sm:px-8 pb-8 pt-0">
@@ -1128,7 +1128,7 @@ export default function ProfilePage() {
                         <CardTitle className="text-xl font-extrabold text-foreground flex items-center gap-2">
                           <Crown className="h-5 w-5 text-amber-500" /> Status Keanggotaan
                         </CardTitle>
-                        <CardDescription className="text-sm">Status lisensi akun PejuangASN Anda saat ini.</CardDescription>
+                        <CardDescription className="text-sm">Status lisensi akun Kawan ASN Anda saat ini.</CardDescription>
                       </div>
                       {profile?.subscription_status === 'PREMIUM' && (
                         <span className="shrink-0 px-3 py-1 text-[10px] tracking-wider font-extrabold text-amber-600 bg-amber-500/10 border border-amber-500/20 rounded-full uppercase animate-pulse">
@@ -1245,7 +1245,7 @@ export default function ProfilePage() {
                   <Card className="bg-card border-amber-500/30 shadow-md overflow-hidden relative border-2 bg-gradient-to-br from-amber-500/[0.03] via-transparent to-indigo-500/[0.03]">
                     <div className="absolute top-0 right-0 h-32 w-32 bg-gradient-to-bl from-amber-500/20 via-transparent to-transparent rounded-bl-full pointer-events-none" />
                     <CardHeader>
-                      <CardTitle className="text-xl font-black text-foreground flex items-center gap-2"><Crown className="h-6 w-6 text-amber-500 animate-pulse" /> Upgrade ke Pejuang Premium!</CardTitle>
+                      <CardTitle className="text-xl font-black text-foreground flex items-center gap-2"><Crown className="h-6 w-6 text-amber-500 animate-pulse" /> Upgrade ke Premium Kawan ASN!</CardTitle>
                       <CardDescription>Dapatkan akses penuh ke semua fitur simulasi CAT dan materi berkualitas tinggi.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6 pb-6">
@@ -1607,7 +1607,7 @@ export default function ProfilePage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="p-4 border border-emerald-500/20 bg-emerald-500/5 rounded-xl text-sm leading-relaxed text-foreground">
-                    🎉 <strong>Selamat atas pencapaian Anda!</strong> Terima kasih atas partisipasi Anda mengisi survey kelulusan di PejuangASN. Testimoni Anda sangat berarti bagi pengembangan kualitas sistem tryout kami ke depannya.
+                    🎉 <strong>Selamat atas pencapaian Anda!</strong> Terima kasih atas partisipasi Anda mengisi survey kelulusan di Kawan ASN. Testimoni Anda sangat berarti bagi pengembangan kualitas sistem tryout kami ke depannya.
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 text-xs font-semibold bg-muted/40 border border-border p-4 rounded-xl">
@@ -1773,7 +1773,7 @@ export default function ProfilePage() {
                         rows={4} 
                         value={feedback} 
                         onChange={(e) => setFeedback(e.target.value)} 
-                        placeholder="Berikan feedback atau pesan kesan selama Anda berlatih tryout CAT menggunakan platform PejuangASN..."
+                        placeholder="Berikan feedback atau pesan kesan selama Anda berlatih tryout CAT menggunakan platform Kawan ASN..."
                         className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-indigo-500 placeholder:text-muted-foreground/60 transition-all duration-200"
                       />
                     </div>

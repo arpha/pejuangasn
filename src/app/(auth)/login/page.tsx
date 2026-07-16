@@ -100,7 +100,7 @@ export default function LoginPage() {
             <GraduationCap className="h-8 w-8" />
           </div>
           <div className="space-y-1">
-            <CardTitle className="text-2xl font-black tracking-tight text-gray-900 dark:text-white">Masuk PejuangASN</CardTitle>
+            <CardTitle className="text-2xl font-black tracking-tight text-gray-900 dark:text-white">Masuk Kawan ASN</CardTitle>
             <CardDescription className="text-gray-500 dark:text-slate-400 text-sm">Akses modul pembelajaran dan Tryout CAT Anda</CardDescription>
           </div>
         </CardHeader>

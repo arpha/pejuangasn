@@ -111,7 +111,7 @@ export default function AdminDashboardPage() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-border pb-6">
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-semibold text-sm">
-            <Shield className="h-4 w-4" /> Panel Admin PejuangASN
+            <Shield className="h-4 w-4" /> Panel Admin Kawan ASN
           </div>
           <h1 className="text-3xl font-extrabold text-foreground tracking-tight">Dashboard Admin</h1>
           <p className="text-muted-foreground">Kelola simulasi tryout CAT, soal, materi, dan tinjau performa sistem.</p>

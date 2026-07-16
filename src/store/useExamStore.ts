@@ -76,7 +76,7 @@ export const useExamStore = create<CATState>()(
       },
     }),
     {
-      name: 'pejuangasn-cat-session', // Local storage key
+      name: 'kawanasn-cat-session', // Local storage key
     }
   )
 );
