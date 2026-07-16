@@ -37,7 +37,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   useEffect(() => {
     // Client-side route protection
-    if (!loading && !profile) {
+    const isPublicRoute = pathname.startsWith('/blog');
+    
+    if (!loading && !profile && !isPublicRoute) {
       toast.error('Harap login terlebih dahulu');
       router.push('/login');
       return;
@@ -110,7 +112,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     );
   }
 
-  if (!profile) return null;
+  if (!profile && !pathname.startsWith('/blog')) return null;
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col transition-colors duration-300">
@@ -170,31 +172,42 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
           {/* User Card */}
           <div className="p-4 border-b border-border bg-muted/10">
-            <Link href="/profil" onClick={() => setIsMobileMenuOpen(false)}>
-              <div className={`bg-card border border-border rounded-xl p-3 flex items-center ${
-                isSidebarCollapsed ? 'justify-center p-2' : 'gap-3'
-              } shadow-sm hover:bg-muted/50 cursor-pointer transition-all duration-200`}>
-                <div className="h-9 w-9 rounded-full bg-indigo-600 dark:bg-indigo-700 flex items-center justify-center font-bold text-white uppercase text-sm shrink-0">
-                  {profile.full_name?.charAt(0) || 'U'}
-                </div>
-                {!isSidebarCollapsed && (
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-bold text-foreground truncate">{profile.full_name}</p>
-                    <div className="flex items-center gap-1 mt-0.5">
-                      {profile.subscription_status === 'PREMIUM' ? (
-                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-emerald-600 dark:text-emerald-400 border border-amber-500/20">
-                          <Crown className="h-2.5 w-2.5 text-amber-500" /> PREMIUM
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium bg-muted text-muted-foreground border border-border">
-                          FREE
-                        </span>
-                      )}
-                    </div>
+            {profile ? (
+              <Link href="/profil" onClick={() => setIsMobileMenuOpen(false)}>
+                <div className={`bg-card border border-border rounded-xl p-3 flex items-center ${
+                  isSidebarCollapsed ? 'justify-center p-2' : 'gap-3'
+                } shadow-sm hover:bg-muted/50 cursor-pointer transition-all duration-200`}>
+                  <div className="h-9 w-9 rounded-full bg-indigo-600 dark:bg-indigo-700 flex items-center justify-center font-bold text-white uppercase text-sm shrink-0">
+                    {profile.full_name?.charAt(0) || 'U'}
                   </div>
-                )}
-              </div>
-            </Link>
+                  {!isSidebarCollapsed && (
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-bold text-foreground truncate">{profile.full_name}</p>
+                      <div className="flex items-center gap-1 mt-0.5">
+                        {profile.subscription_status === 'PREMIUM' ? (
+                          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-emerald-600 dark:text-emerald-400 border border-amber-500/20">
+                            <Crown className="h-2.5 w-2.5 text-amber-500" /> PREMIUM
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium bg-muted text-muted-foreground border border-border">
+                            FREE
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </Link>
+            ) : (
+              <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                <div className={`bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl p-3 flex items-center ${
+                  isSidebarCollapsed ? 'justify-center p-2' : 'gap-3 justify-center'
+                } shadow-sm cursor-pointer transition-all duration-200`}>
+                  <User className="h-4 w-4 shrink-0" />
+                  {!isSidebarCollapsed && <span className="text-sm font-bold">Masuk / Login</span>}
+                </div>
+              </Link>
+            )}
           </div>
 
           {/* Nav Links */}
@@ -230,22 +243,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
 
           {/* Sidebar Footer (Logout) */}
-          <div className="p-4 border-t border-border shrink-0">
-            <Button 
-              variant="ghost" 
-              onClick={() => {
-                setIsMobileMenuOpen(false);
-                handleLogout();
-              }}
-              className={`w-full ${
-                isSidebarCollapsed ? 'justify-center px-0' : 'justify-start px-4'
-              } text-muted-foreground hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded-xl py-3 h-auto font-semibold transition-all`}
-              title={isSidebarCollapsed ? "Keluar Akun" : undefined}
-            >
-              <LogOut className="h-5 w-5 shrink-0" />
-              {!isSidebarCollapsed && <span className="ml-3">Keluar Akun</span>}
-            </Button>
-          </div>
+          {profile && (
+            <div className="p-4 border-t border-border shrink-0">
+              <Button 
+                variant="ghost" 
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  handleLogout();
+                }}
+                className={`w-full ${
+                  isSidebarCollapsed ? 'justify-center px-0' : 'justify-start px-4'
+                } text-muted-foreground hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded-xl py-3 h-auto font-semibold transition-all`}
+                title={isSidebarCollapsed ? "Keluar Akun" : undefined}
+              >
+                <LogOut className="h-5 w-5 shrink-0" />
+                {!isSidebarCollapsed && <span className="ml-3">Keluar Akun</span>}
+              </Button>
+            </div>
+          )}
         </aside>
 
         {/* Main Content Area */}
