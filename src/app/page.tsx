@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { 
   BookOpen, GraduationCap, Award, CheckCircle2, ShieldCheck, ArrowRight, 
   Users, Trophy, Star, BarChart3, Clock, Zap, Target, TrendingUp, 
-  FileText, Share2, Crown, Sparkles, BookMarked, Brain, MessageSquare
+  FileText, Share2, Crown, Sparkles, BookMarked, Brain, MessageSquare, Lock
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/theme-toggle';
@@ -61,12 +61,15 @@ export default function Home() {
       price: 'Rp 0',
       description: 'Akses dasar untuk mulai belajar dan berlatih tanpa biaya.',
       features: [
-        'Materi belajar lengkap TWK, TIU, TKP',
-        'Quiz interaktif per modul materi',
-        'Tryout individu gratis tanpa batas',
-        'Latihan soal per kategori',
-        'Blog & tips persiapan CPNS',
-        'Papan peringkat tryout individu',
+        { text: 'Materi belajar lengkap TWK, TIU, TKP', status: 'checked' },
+        { text: 'Quiz interaktif per modul materi', status: 'checked' },
+        { text: 'Tryout Mandiri (Batas maksimal 1x pengerjaan)', status: 'checked' },
+        { text: 'Latihan Soal Mandiri (Hanya soal gratis)', status: 'checked' },
+        { text: 'Papan peringkat tryout mandiri', status: 'checked' },
+        { text: 'Akses Tryout Kelompok Premium', status: 'locked' },
+        { text: 'Pembahasan Soal Lengkap', status: 'locked' },
+        { text: 'Analisis Detail & Rekomendasi Belajar', status: 'locked' },
+        { text: 'Program Afiliasi Komisi Rp 10.000', status: 'locked' },
       ],
       cta: 'Daftar Gratis',
       highlighted: false,
@@ -79,12 +82,15 @@ export default function Home() {
       period: '/ paket',
       description: 'Akses penuh ke tryout kelompok premium dengan kompetisi nyata.',
       features: [
-        'Semua fitur paket Gratis',
-        'Akses tryout kelompok premium',
-        'Persaingan ranking dengan peserta lain',
-        'Pembahasan soal lengkap',
-        'Analisis skor dan passing grade detail',
-        'Program afiliasi komisi Rp 10.000',
+        { text: 'Materi belajar lengkap TWK, TIU, TKP', status: 'checked' },
+        { text: 'Quiz interaktif per modul materi', status: 'checked' },
+        { text: 'Tryout Mandiri Tanpa Batas (Unlimited Attempt)', status: 'checked' },
+        { text: 'Latihan Soal Kustom (Semua bank soal + Drill Mode)', status: 'checked' },
+        { text: 'Papan peringkat & persaingan ranking nasional', status: 'checked' },
+        { text: 'Akses Tryout Kelompok Premium', status: 'checked' },
+        { text: 'Pembahasan Soal Lengkap', status: 'checked' },
+        { text: 'Analisis Detail & Rekomendasi Belajar', status: 'checked' },
+        { text: 'Program Afiliasi Komisi Rp 10.000', status: 'checked' },
       ],
       cta: 'Beli Paket Premium',
       highlighted: true,
@@ -355,9 +361,20 @@ export default function Home() {
                 <p className="text-sm text-gray-500 dark:text-slate-400 mt-2">{plan.description}</p>
                 <ul className="mt-6 space-y-3">
                   {plan.features.map((f, fi) => (
-                    <li key={fi} className="flex items-start gap-2.5 text-sm text-gray-600 dark:text-slate-300">
-                      <CheckCircle2 className="h-4 w-4 text-emerald-500 dark:text-emerald-400 mt-0.5 shrink-0" />
-                      {f}
+                    <li
+                      key={fi}
+                      className={`flex items-start gap-2.5 text-sm ${
+                        f.status === 'locked'
+                          ? "text-gray-400 dark:text-slate-500 line-through decoration-gray-300 dark:decoration-slate-700"
+                          : "text-gray-600 dark:text-slate-300"
+                      }`}
+                    >
+                      {f.status === 'checked' ? (
+                        <CheckCircle2 className="h-4 w-4 text-emerald-500 dark:text-emerald-400 mt-0.5 shrink-0" />
+                      ) : (
+                        <Lock className="h-3.5 w-3.5 text-gray-400 dark:text-slate-600 mt-0.5 shrink-0" />
+                      )}
+                      <span>{f.text}</span>
                     </li>
                   ))}
                 </ul>
