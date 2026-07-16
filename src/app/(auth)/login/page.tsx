@@ -15,6 +15,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { loginSchema, LoginInput } from '@/lib/validations';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/useAuthStore';
+import { LogoIcon } from '@/components/logo';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -96,9 +97,7 @@ export default function LoginPage() {
  
       <Card className="w-full max-w-md border-gray-200 dark:border-white/[0.12] bg-white dark:bg-[#1E293B] shadow-xl dark:shadow-2xl rounded-3xl overflow-hidden relative">
         <CardHeader className="space-y-4 text-center p-6 sm:p-8">
-          <div className="mx-auto bg-gradient-to-tr from-indigo-500 to-indigo-600 p-3.5 rounded-2xl w-fit text-white shadow-lg shadow-indigo-500/20">
-            <GraduationCap className="h-8 w-8" />
-          </div>
+          <LogoIcon size={56} className="mx-auto" />
           <div className="space-y-1">
             <CardTitle className="text-2xl font-black tracking-tight text-gray-900 dark:text-white">Masuk Kawan ASN</CardTitle>
             <CardDescription className="text-gray-500 dark:text-slate-400 text-sm">Akses modul pembelajaran dan Tryout CAT Anda</CardDescription>

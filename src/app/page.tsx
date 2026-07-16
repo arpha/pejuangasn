@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { Logo } from '@/components/logo';
 
 export default function Home() {
   const features = [
@@ -121,14 +122,7 @@ export default function Home() {
       {/* Header */}
       <header className="border-b border-gray-200 dark:border-white/[0.06] bg-white/80 dark:bg-[#090D16]/80 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="bg-gradient-to-tr from-indigo-500 to-indigo-600 p-1.5 rounded-lg">
-              <GraduationCap className="h-5 w-5 text-white" />
-            </div>
-            <span className="font-black text-lg tracking-tight text-gray-900 dark:text-white">
-              Kawan ASN
-            </span>
-          </div>
+          <Logo />
           <nav className="flex items-center gap-4">
             <ThemeToggle />
             <Link href="/login" className="text-sm font-bold text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white transition-colors hidden sm:block">
@@ -487,12 +481,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div className="md:col-span-2 space-y-3">
-              <div className="flex items-center gap-2.5">
-                <div className="bg-gradient-to-tr from-indigo-500 to-indigo-600 p-1.5 rounded-lg">
-                  <GraduationCap className="h-5 w-5 text-white" />
-                </div>
-                <span className="font-black text-lg text-gray-900 dark:text-white">Kawan ASN</span>
-              </div>
+              <Logo />
               <p className="text-sm text-gray-500 dark:text-slate-500 max-w-xs leading-relaxed">
                 Platform simulasi tryout CAT CPNS terlengkap di Indonesia. Belajar materi, ikuti tryout, raih passing grade, dan lolos seleksi impian Anda.
               </p>

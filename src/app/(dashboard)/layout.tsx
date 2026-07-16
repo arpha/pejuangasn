@@ -24,6 +24,7 @@ import { toast } from 'sonner';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { Logo, LogoIcon } from '@/components/logo';
 import { supabase } from '@/lib/supabase';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -116,12 +117,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       
       {/* Mobile Top Bar */}
       <div className="flex md:hidden items-center justify-between px-6 h-16 border-b border-border bg-card sticky top-0 z-40">
-        <div className="flex items-center gap-2">
-          <GraduationCap className="h-7 w-7 text-indigo-600 dark:text-indigo-400" />
-          <span className="font-extrabold text-lg tracking-tight text-indigo-600 dark:text-indigo-400">
-            Kawan ASN
-          </span>
-        </div>
+        <Logo size={32} />
         <div className="flex items-center gap-3">
           <ThemeToggle />
           <button
@@ -157,14 +153,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           
           {/* Sidebar Header */}
           <div className="h-16 border-b border-border flex items-center justify-between px-6 gap-2 shrink-0">
-            <div className="flex items-center gap-2 overflow-hidden">
-              <GraduationCap className="h-7 w-7 text-indigo-600 dark:text-indigo-400 shrink-0" />
-              {!isSidebarCollapsed && (
-                <span className="font-extrabold text-lg tracking-tight text-indigo-600 dark:text-indigo-400 whitespace-nowrap">
-                  Kawan ASN
-                </span>
-              )}
-            </div>
+            <Logo size={32} showText={!isSidebarCollapsed} />
             {/* Collapse/Expand Toggle Button for Desktop */}
             <button
               onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
