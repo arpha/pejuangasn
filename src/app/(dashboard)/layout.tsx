@@ -37,7 +37,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   useEffect(() => {
     // Client-side route protection
-    const isPublicRoute = pathname.startsWith('/blog');
+    const publicRoutes = ['/blog', '/ketentuan-layanan', '/kebijakan-privasi', '/kontak'];
+    const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route));
     
     if (!loading && !profile && !isPublicRoute) {
       toast.error('Harap login terlebih dahulu');
@@ -113,7 +114,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   if (!profile) {
-    if (!pathname.startsWith('/blog')) return null;
+    const publicRoutes = ['/blog', '/ketentuan-layanan', '/kebijakan-privasi', '/kontak'];
+    const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route));
+    if (!isPublicRoute) return null;
 
     return (
       <div className="min-h-screen bg-background text-foreground flex flex-col transition-colors duration-300">
