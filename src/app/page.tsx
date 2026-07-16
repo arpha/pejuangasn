@@ -2,7 +2,8 @@ import Link from 'next/link';
 import { 
   BookOpen, GraduationCap, Award, CheckCircle2, ShieldCheck, ArrowRight, 
   Users, Trophy, Star, BarChart3, Clock, Zap, Target, TrendingUp, 
-  FileText, Share2, Crown, Sparkles, BookMarked, Brain, MessageSquare
+  FileText, Share2, Crown, Sparkles, BookMarked, Brain, MessageSquare,
+  Instagram, Youtube
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/theme-toggle';
@@ -481,36 +482,92 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-gray-200 dark:border-white/[0.04] py-10 bg-gray-50 dark:bg-[#070B12]">
+      <footer className="border-t border-slate-100 dark:border-white/[0.04] py-16 bg-white dark:bg-[#070B12] transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-            <div className="md:col-span-2 space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-10 pb-12 border-b border-slate-100 dark:border-white/[0.04]">
+            {/* Brand Section */}
+            <div className="md:col-span-6 space-y-4">
               <Logo />
-              <p className="text-sm text-gray-500 dark:text-slate-500 max-w-xs leading-relaxed">
+              <p className="text-sm text-gray-500 dark:text-slate-400 max-w-sm leading-relaxed">
                 Platform simulasi tryout CAT CPNS terlengkap di Indonesia. Belajar materi, ikuti tryout, raih passing grade, dan lolos seleksi impian Anda.
               </p>
+              {/* Social Media Links */}
+              <div className="flex items-center gap-3 pt-2">
+                <a
+                  href="https://t.me/kawanasn"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2.5 rounded-full border border-slate-200 dark:border-white/10 hover:border-sky-500 text-slate-500 dark:text-slate-400 hover:text-sky-500 hover:bg-sky-500/5 transition-all duration-300 hover:-translate-y-1 shadow-sm"
+                  title="Telegram"
+                >
+                  <svg className="h-5 w-5 fill-current" viewBox="0 0 24 24">
+                    <path d="M12 .5C5.648.5.5 5.648.5 12s5.148 11.5 11.5 11.5 11.5-5.148 11.5-11.5S18.352.5 12 .5zm5.56 7.604l-1.872 8.814c-.14.622-.51.776-1.034.484l-2.854-2.1c-.688.662-1.352 1.34-2.072 2.052-.162.164-.326.314-.492.314-.236 0-.276-.118-.328-.27L7.68 13.92 4.148 12.82c-.768-.24-.784-.768.16-.114l13.82-5.328c.64-.232 1.2.148 1.432.726z" />
+                  </svg>
+                </a>
+                <a
+                  href="https://instagram.com/kawanasn"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2.5 rounded-full border border-slate-200 dark:border-white/10 hover:border-rose-500 text-slate-500 dark:text-slate-400 hover:text-rose-500 hover:bg-rose-500/5 transition-all duration-300 hover:-translate-y-1 shadow-sm"
+                  title="Instagram"
+                >
+                  <Instagram className="h-5 w-5" />
+                </a>
+                <a
+                  href="https://youtube.com/kawanasn"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2.5 rounded-full border border-slate-200 dark:border-white/10 hover:border-red-500 text-slate-500 dark:text-slate-400 hover:text-red-500 hover:bg-red-500/5 transition-all duration-300 hover:-translate-y-1 shadow-sm"
+                  title="YouTube"
+                >
+                  <Youtube className="h-5 w-5" />
+                </a>
+              </div>
             </div>
-            <div>
-              <h4 className="font-bold text-sm text-gray-900 dark:text-white mb-3 uppercase tracking-wider">Fitur</h4>
-              <ul className="space-y-2 text-sm text-gray-500 dark:text-slate-500">
-                <li>Materi Belajar</li>
-                <li>Tryout CAT</li>
-                <li>Latihan Soal</li>
-                <li>Papan Peringkat</li>
+
+            {/* Links Section */}
+            <div className="md:col-span-3 space-y-4">
+              <h4 className="font-bold text-sm text-gray-900 dark:text-white uppercase tracking-wider">Halaman</h4>
+              <ul className="space-y-2.5 text-sm">
+                <li>
+                  <Link href="/blog" className="text-gray-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-semibold">
+                    Blog & Tips
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/kontak" className="text-gray-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-semibold">
+                    Hubungi Kami / Kontak
+                  </Link>
+                </li>
               </ul>
             </div>
-            <div>
-              <h4 className="font-bold text-sm text-gray-900 dark:text-white mb-3 uppercase tracking-wider">Lainnya</h4>
-              <ul className="space-y-2 text-sm text-gray-500 dark:text-slate-500">
-                <li>Blog & Tips</li>
-                <li>Program Afiliasi</li>
-                <li>Survey Kelulusan</li>
-                <li>Hubungi Kami</li>
+
+            {/* Legal Section */}
+            <div className="md:col-span-3 space-y-4">
+              <h4 className="font-bold text-sm text-gray-900 dark:text-white uppercase tracking-wider">Legalitas</h4>
+              <ul className="space-y-2.5 text-sm">
+                <li>
+                  <Link href="/ketentuan-layanan" className="text-gray-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-semibold">
+                    Ketentuan Layanan
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/kebijakan-privasi" className="text-gray-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-semibold">
+                    Kebijakan Privasi
+                  </Link>
+                </li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-gray-200 dark:border-white/[0.04] pt-6 text-center">
-            <p className="text-xs text-gray-400 dark:text-slate-600">© {new Date().getFullYear()} Kawan ASN. Hak Cipta Dilindungi.</p>
+
+          {/* Bottom Copyright */}
+          <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-xs text-gray-400 dark:text-slate-500">
+              © {new Date().getFullYear()} Kawan ASN. Hak Cipta Dilindungi.
+            </p>
+            <p className="text-xs text-gray-400 dark:text-slate-600">
+              Dibuat dengan dedikasi untuk kesuksesan CPNS & PPPK Indonesia.
+            </p>
           </div>
         </div>
       </footer>
