@@ -13,26 +13,34 @@ export function LogoIcon({ size = 40, className, ...props }: LogoIconProps) {
       viewBox="0 0 100 100"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={cn("select-none overflow-hidden shrink-0", className)}
+      className={cn("select-none shrink-0", className)}
       {...props}
     >
-      {/* Background Container with Logo Sand Color */}
-      <rect width="100" height="100" rx="20" fill="#DDD7C8" />
+      {/* Background Circle matching the logo image */}
+      <circle cx="50" cy="50" r="46" fill="#DDD7C8" />
       
-      {/* Unified Solid Silhouette of the K shape in Dark Navy */}
-      <path
-        d="M26 22 H40 V36 L70 13 L78 25 L48 48 L62 62 V78 H48 V66 L40 58 V78 H26 Z"
-        fill="#23384E"
-      />
+      {/* Group for Dark Navy Base Shape */}
+      <g stroke="#23384E" strokeWidth="10" strokeLinecap="butt" strokeLinejoin="miter">
+        {/* Left vertical stem */}
+        <path d="M40 25V75" />
+        {/* Top-right branch */}
+        <path d="M40 46L65 27" />
+        {/* Bottom-right branch */}
+        <path d="M50 39.5L58 50V75" />
+      </g>
       
-      {/* Thinner Sand-colored Inline running through the center of the shape */}
-      <path
-        d="M33 27V73 M33 47 L74 19 M33 47 L55 64 V73"
-        stroke="#DDD7C8"
-        strokeWidth="3.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      {/* Solid Navy Notch on the Left side of the stem */}
+      <polygon points="35,43 31,46.5 35,50" fill="#23384E" />
+      
+      {/* Group for Inner Sand-colored Inline (Hollow Cutout) */}
+      <g stroke="#DDD7C8" strokeWidth="4" strokeLinecap="butt" strokeLinejoin="miter">
+        {/* Left vertical stem inline */}
+        <path d="M40 25.1V74.9" />
+        {/* Top-right branch inline */}
+        <path d="M40 46L65 27" />
+        {/* Bottom-right branch inline */}
+        <path d="M50 39.5L58 50V74.9" />
+      </g>
     </svg>
   );
 }
