@@ -13,32 +13,26 @@ export function LogoIcon({ size = 40, className, ...props }: LogoIconProps) {
       viewBox="0 0 100 100"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={cn("rounded-xl select-none overflow-hidden shadow-sm border border-[#23384E]/10", className)}
+      className={cn("select-none overflow-hidden shrink-0", className)}
       {...props}
     >
-      {/* Background with Logo Beige/Sand color */}
-      <rect width="100" height="100" fill="#DDD7C8" />
+      {/* Background Container with Logo Sand Color */}
+      <rect width="100" height="100" rx="20" fill="#DDD7C8" />
       
-      {/* The logo paths with dual stroke to create the hollow inline effect */}
-      {/* 1. Outer Dark Navy Outline (Thick) */}
-      <g stroke="#23384E" strokeWidth="12" strokeLinecap="square" strokeLinejoin="miter">
-        {/* Left vertical bar */}
-        <path d="M34 25V75" />
-        {/* Top-right branch */}
-        <path d="M34 50L68 26" />
-        {/* Bottom-right branch with a vertical bend at the end */}
-        <path d="M47 41L59 60V75" />
-      </g>
+      {/* Unified Solid Silhouette of the K shape in Dark Navy */}
+      <path
+        d="M26 22 H40 V36 L70 13 L78 25 L48 48 L62 62 V78 H48 V66 L40 58 V78 H26 Z"
+        fill="#23384E"
+      />
       
-      {/* 2. Inner Sand/Beige Outline (Thin, draws over the navy to make it hollow) */}
-      <g stroke="#DDD7C8" strokeWidth="3" strokeLinecap="square" strokeLinejoin="miter">
-        {/* Left vertical bar inner line */}
-        <path d="M34 25V75" />
-        {/* Top-right branch inner line */}
-        <path d="M34 50L68 26" />
-        {/* Bottom-right branch inner line */}
-        <path d="M47 41L59 60V75" />
-      </g>
+      {/* Thinner Sand-colored Inline running through the center of the shape */}
+      <path
+        d="M33 27V73 M33 47 L74 19 M33 47 L55 64 V73"
+        stroke="#DDD7C8"
+        strokeWidth="3.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
