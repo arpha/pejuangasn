@@ -175,13 +175,16 @@ export default function Home() {
           </div>
 
           {/* Right Card */}
-          <div className="lg:col-span-5 relative">
-            <div className="relative border border-gray-200 dark:border-white/[0.08] bg-gray-50 dark:bg-[#1E293B] rounded-3xl p-6 sm:p-8 shadow-xl dark:shadow-2xl space-y-5">
-              <h3 className="font-bold text-lg text-gray-900 dark:text-white flex items-center gap-2">
-                <ShieldCheck className="text-emerald-500 dark:text-emerald-400 h-5 w-5" /> Fitur Unggulan
+          <div className="lg:col-span-5 relative group">
+            {/* Glowing backdrop border effect */}
+            <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-[28px] blur-xl opacity-20 group-hover:opacity-30 transition duration-1000 pointer-events-none" />
+            
+            <div className="relative border border-slate-200/60 dark:border-white/[0.08] bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl rounded-[26px] p-6 sm:p-8 shadow-2xl space-y-6">
+              <h3 className="font-black text-xl text-gray-900 dark:text-white flex items-center gap-2.5 pb-3 border-b border-slate-100 dark:border-white/[0.06]">
+                <ShieldCheck className="text-emerald-500 dark:text-emerald-400 h-6 w-6 shrink-0" /> Fitur Unggulan
               </h3>
               
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {[
                   { icon: BookOpen, label: 'Materi + Quiz Interaktif', desc: 'Baca modul, kerjakan quiz, tandai selesai.', color: 'text-indigo-600 dark:text-indigo-400 bg-indigo-500/10' },
                   { icon: Award, label: 'CAT Simulator BKN', desc: '110 soal, timer, navigasi, penanda ragu.', color: 'text-sky-600 dark:text-sky-400 bg-sky-500/10' },
@@ -190,13 +193,13 @@ export default function Home() {
                   { icon: Trophy, label: 'Papan Peringkat', desc: 'Ranking nasional per tryout kelompok.', color: 'text-amber-600 dark:text-amber-400 bg-amber-500/10' },
                   { icon: Share2, label: 'Program Afiliasi', desc: 'Dapatkan komisi Rp 10.000 per referral.', color: 'text-purple-600 dark:text-purple-400 bg-purple-500/10' },
                 ].map((item, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    <div className={`mt-0.5 p-2 rounded-lg ${item.color}`}>
-                      <item.icon className="h-4 w-4" />
+                  <div key={i} className="group/item flex items-start gap-4 p-2.5 rounded-2xl transition-all duration-300 hover:bg-slate-50/50 dark:hover:bg-white/[0.03] hover:translate-x-1.5">
+                    <div className={`p-2.5 rounded-xl shrink-0 transition-transform duration-300 group-hover/item:scale-110 ${item.color}`}>
+                      <item.icon className="h-5 w-5" />
                     </div>
-                    <div>
-                      <h4 className="font-bold text-sm text-gray-900 dark:text-white">{item.label}</h4>
-                      <p className="text-xs text-gray-500 dark:text-slate-400">{item.desc}</p>
+                    <div className="space-y-0.5">
+                      <h4 className="font-bold text-[14px] text-gray-900 dark:text-white transition-colors duration-200 group-hover/item:text-indigo-600 dark:group-hover/item:text-indigo-400">{item.label}</h4>
+                      <p className="text-xs text-gray-500 dark:text-slate-400 leading-relaxed">{item.desc}</p>
                     </div>
                   </div>
                 ))}
