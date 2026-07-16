@@ -14,10 +14,10 @@ import { useAuthStore } from '@/store/useAuthStore';
 const fallbackBlogsMap: Record<string, Blog> = {
   'panduan-resmi-seleksi-cpns-2026': {
     id: 'f11b2c25-c1b1-44c5-aeb9-72bff9499701',
-    title: 'Panduan Resmi Persiapan Seleksi CPNS 2026',
+    title: 'Panduan Resmi Persiapan Seleksi CPNS Terbaru',
     slug: 'panduan-resmi-seleksi-cpns-2026',
-    content: `### Pengantar Seleksi CPNS 2026
-Pemerintah kembali membuka rekrutmen Calon Pegawai Negeri Sipil (CPNS) untuk tahun anggaran 2026. Persaingan diprediksi akan semakin ketat dibandingkan tahun-tahun sebelumnya. 
+    content: `### Pengantar Seleksi CPNS Terbaru
+Pemerintah kembali membuka rekrutmen Calon Pegawai Negeri Sipil (CPNS) secara berkala. Persaingan diprediksi akan semakin ketat dibandingkan tahun-tahun sebelumnya. 
 
 Oleh karena itu, persiapan matang sejak dini menjadi kunci utama keberhasilan Anda. Tes Seleksi Kompetensi Dasar (SKD) merupakan tahapan pertama yang harus dilalui menggunakan sistem Computer Assisted Test (CAT).
 

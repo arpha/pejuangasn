@@ -106,7 +106,7 @@ export default function Home() {
     },
     {
       name: 'Dewi Lestari',
-      role: 'Peserta CPNS 2026',
+      role: 'Calon Peserta Seleksi CPNS',
       text: 'Fitur latihan soal per kategori sangat membantu saya fokus ke kelemahan di TIU. Papan peringkat juga bikin semangat bersaing!',
       rating: 4,
     },
@@ -146,7 +146,7 @@ export default function Home() {
           <div className="lg:col-span-7 flex flex-col space-y-6 text-center lg:text-left">
             <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 self-center lg:self-start">
               <Sparkles className="h-3.5 w-3.5" />
-              Persiapan SKD CPNS 2026 Terlengkap
+              Persiapan SKD CPNS Terbaru & Terlengkap
             </div>
             
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-gray-900 dark:text-white leading-[1.1]">

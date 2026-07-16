@@ -17,7 +17,7 @@ import { Package, Question } from '@/types';
 const fallbackPackages: Record<string, Package> = {
   'b11d2c25-c1b1-44c5-aeb9-72bff9499701': {
     id: 'b11d2c25-c1b1-44c5-aeb9-72bff9499701',
-    title: 'Simulasi Ujian Mini SKD CPNS 2026',
+    title: 'Simulasi Ujian Mini SKD CPNS Terbaru',
     description: 'Simulasi ringkas SKD CPNS terdiri dari 6 soal contoh (2 TWK, 2 TIU, 2 TKP) untuk mencoba sistem CAT.',
     type: 'FREE',
     category: 'MANDIRI',
