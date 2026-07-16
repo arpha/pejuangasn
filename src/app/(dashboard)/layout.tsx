@@ -112,7 +112,36 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     );
   }
 
-  if (!profile && !pathname.startsWith('/blog')) return null;
+  if (!profile) {
+    if (!pathname.startsWith('/blog')) return null;
+
+    return (
+      <div className="min-h-screen bg-background text-foreground flex flex-col transition-colors duration-300">
+        {/* Sticky Header Bar for Guests */}
+        <header className="sticky top-0 z-50 w-full border-b border-border bg-background/85 backdrop-blur-sm">
+          <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <Link href="/" className="flex items-center gap-2">
+              <Logo size={32} />
+            </Link>
+            
+            <div className="flex items-center gap-4">
+              <ThemeToggle />
+              <Link href="/login">
+                <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl px-4 py-2 h-9 transition-all">
+                  Masuk / Login
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </header>
+
+        {/* Content Area */}
+        <main className="flex-1 overflow-y-auto p-6 md:p-10 max-w-7xl mx-auto w-full">
+          {children}
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col transition-colors duration-300">
