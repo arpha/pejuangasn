@@ -116,7 +116,7 @@ export default function RegisterPage() {
  
       <Card className="w-full max-w-2xl border-gray-200 dark:border-white/[0.12] bg-white dark:bg-[#1E293B] shadow-xl dark:shadow-2xl rounded-3xl overflow-hidden relative mt-12 mb-12">
         <CardHeader className="space-y-4 text-center p-6 sm:p-8">
-          <LogoIcon size={56} className="mx-auto" />
+          <LogoIcon size={56} disableDarkInvert={true} className="mx-auto" />
           <div className="space-y-1">
             <CardTitle className="text-2xl font-black tracking-tight text-gray-900 dark:text-white">Daftar Kawan ASN</CardTitle>
             <CardDescription className="text-gray-500 dark:text-slate-400 text-sm">Mulai langkah sukses Anda menjadi ASN hari ini</CardDescription>

@@ -3,9 +3,10 @@ import { cn } from "@/lib/utils";
 
 interface LogoIconProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   size?: number;
+  disableDarkInvert?: boolean;
 }
 
-export function LogoIcon({ size = 40, className, style, ...props }: LogoIconProps) {
+export function LogoIcon({ size = 40, disableDarkInvert = false, className, style, ...props }: LogoIconProps) {
   // Multiply the base size by 3 for 3x scaling
   const displaySize = size * 3;
   return (
@@ -14,14 +15,28 @@ export function LogoIcon({ size = 40, className, style, ...props }: LogoIconProp
       alt="Kawan ASN Logo Icon"
       width={displaySize}
       height={displaySize}
-      className={cn("select-none shrink-0 rounded-full object-contain dark:brightness-0 dark:invert", className)}
+      className={cn(
+        "select-none shrink-0 rounded-full object-contain",
+        !disableDarkInvert && "dark:brightness-0 dark:invert",
+        className
+      )}
       style={{ width: displaySize, height: displaySize, ...style }}
       {...props}
     />
   );
 }
 
-export function Logo({ className, size = 32, showText = true }: { className?: string; size?: number; showText?: boolean }) {
+export function Logo({
+  className,
+  size = 32,
+  showText = true,
+  disableDarkInvert = false,
+}: {
+  className?: string;
+  size?: number;
+  showText?: boolean;
+  disableDarkInvert?: boolean;
+}) {
   if (showText) {
     // Multiply the base size by 3 for 3x scaling
     const displayHeight = size * 3;
@@ -29,11 +44,15 @@ export function Logo({ className, size = 32, showText = true }: { className?: st
       <img
         src="/logo-full.png"
         alt="Kawan ASN Logo"
-        className={cn("select-none shrink-0 object-contain dark:brightness-0 dark:invert", className)}
+        className={cn(
+          "select-none shrink-0 object-contain",
+          !disableDarkInvert && "dark:brightness-0 dark:invert",
+          className
+        )}
         style={{ height: displayHeight, width: "auto" }}
       />
     );
   }
 
-  return <LogoIcon size={size} className={className} />;
+  return <LogoIcon size={size} disableDarkInvert={disableDarkInvert} className={className} />;
 }

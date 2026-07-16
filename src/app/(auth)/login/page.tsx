@@ -97,7 +97,7 @@ export default function LoginPage() {
  
       <Card className="w-full max-w-md border-gray-200 dark:border-white/[0.12] bg-white dark:bg-[#1E293B] shadow-xl dark:shadow-2xl rounded-3xl overflow-hidden relative">
         <CardHeader className="space-y-4 text-center p-6 sm:p-8">
-          <LogoIcon size={56} className="mx-auto" />
+          <LogoIcon size={56} disableDarkInvert={true} className="mx-auto" />
           <div className="space-y-1">
             <CardTitle className="text-2xl font-black tracking-tight text-gray-900 dark:text-white">Masuk Kawan ASN</CardTitle>
             <CardDescription className="text-gray-500 dark:text-slate-400 text-sm">Akses modul pembelajaran dan Tryout CAT Anda</CardDescription>
