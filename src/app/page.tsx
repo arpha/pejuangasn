@@ -151,7 +151,7 @@ export default function Home() {
             
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-gray-900 dark:text-white leading-[1.1]">
               Lolos CPNS Impian dengan Simulasi CAT{' '}
-              <span className="bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 bg-clip-text text-transparent">
+              <span className="text-indigo-600 dark:text-indigo-400">
                 Kawan ASN
               </span>
             </h1>
@@ -162,7 +162,7 @@ export default function Home() {
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start pt-2">
               <Link href="/register">
-                <Button size="lg" className="w-full sm:w-auto bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white font-extrabold text-base px-8 h-12 shadow-lg shadow-indigo-500/20 rounded-xl transition-all duration-300 hover:scale-[1.02]">
+                <Button size="lg" className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-base px-8 h-12 shadow-lg shadow-indigo-500/20 rounded-xl transition-all duration-300 hover:scale-[1.02]">
                   Coba Tryout Gratis <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
@@ -177,7 +177,7 @@ export default function Home() {
           {/* Right Card */}
           <div className="lg:col-span-5 relative group">
             {/* Glowing backdrop border effect */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-[28px] blur-xl opacity-20 group-hover:opacity-30 transition duration-1000 pointer-events-none" />
+            <div className="absolute -inset-1 bg-indigo-500/10 rounded-[28px] blur-xl opacity-20 group-hover:opacity-30 transition duration-1000 pointer-events-none" />
             
             <div className="relative border border-slate-200/60 dark:border-white/[0.08] bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl rounded-[26px] p-6 sm:p-8 shadow-2xl space-y-6">
               <h3 className="font-black text-xl text-gray-900 dark:text-white flex items-center gap-2.5 pb-3 border-b border-slate-100 dark:border-white/[0.06]">
@@ -231,7 +231,7 @@ export default function Home() {
             </div>
             <h2 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight">
               Semua yang Anda Butuhkan untuk{' '}
-              <span className="bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 bg-clip-text text-transparent">Lolos CPNS</span>
+              <span className="text-indigo-600 dark:text-indigo-400">Lolos CPNS</span>
             </h2>
             <p className="text-gray-500 dark:text-slate-400 mt-3 text-sm sm:text-base">
               Dari materi belajar hingga simulasi ujian nyata — Kawan ASN menyediakan ekosistem persiapan CPNS yang lengkap dan terintegrasi.
@@ -241,12 +241,12 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {features.map((feature, i) => {
               const colorMap: Record<string, string> = {
-                indigo: 'from-indigo-500/5 dark:from-indigo-500/10 to-indigo-500/[0.02] dark:to-indigo-500/5 border-indigo-500/10 dark:border-indigo-500/15',
-                sky: 'from-sky-500/5 dark:from-sky-500/10 to-sky-500/[0.02] dark:to-sky-500/5 border-sky-500/10 dark:border-sky-500/15',
-                emerald: 'from-emerald-500/5 dark:from-emerald-500/10 to-emerald-500/[0.02] dark:to-emerald-500/5 border-emerald-500/10 dark:border-emerald-500/15',
-                amber: 'from-amber-500/5 dark:from-amber-500/10 to-amber-500/[0.02] dark:to-amber-500/5 border-amber-500/10 dark:border-amber-500/15',
-                purple: 'from-purple-500/5 dark:from-purple-500/10 to-purple-500/[0.02] dark:to-purple-500/5 border-purple-500/10 dark:border-purple-500/15',
-                rose: 'from-rose-500/5 dark:from-rose-500/10 to-rose-500/[0.02] dark:to-rose-500/5 border-rose-500/10 dark:border-rose-500/15',
+                indigo: 'border-indigo-500/10 dark:border-indigo-500/20',
+                sky: 'border-sky-500/10 dark:border-sky-500/20',
+                emerald: 'border-emerald-500/10 dark:border-emerald-500/20',
+                amber: 'border-amber-500/10 dark:border-amber-500/20',
+                purple: 'border-purple-500/10 dark:border-purple-500/20',
+                rose: 'border-rose-500/10 dark:border-rose-500/20',
               };
               const iconColorMap: Record<string, string> = {
                 indigo: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400',
@@ -259,7 +259,7 @@ export default function Home() {
               return (
                 <div
                   key={i}
-                  className={`bg-gradient-to-br ${colorMap[feature.color]} border rounded-2xl p-6 hover:scale-[1.02] transition-all duration-300`}
+                  className={`bg-slate-50/50 dark:bg-white/[0.02] hover:bg-slate-50 dark:hover:bg-white/[0.03] ${colorMap[feature.color]} border rounded-2xl p-6 hover:scale-[1.02] transition-all duration-300`}
                 >
                   <div className={`p-2.5 rounded-xl w-fit ${iconColorMap[feature.color]} mb-4`}>
                     <feature.icon className="h-5 w-5" />
@@ -284,7 +284,7 @@ export default function Home() {
             </div>
             <h2 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight">
               4 Langkah Menuju{' '}
-              <span className="bg-gradient-to-r from-emerald-600 to-sky-600 dark:from-emerald-400 dark:to-sky-400 bg-clip-text text-transparent">Kelulusan CPNS</span>
+              <span className="text-emerald-600 dark:text-emerald-400">Kelulusan CPNS</span>
             </h2>
           </div>
 
@@ -319,7 +319,7 @@ export default function Home() {
             </div>
             <h2 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight">
               Pilih Paket yang{' '}
-              <span className="bg-gradient-to-r from-amber-500 to-orange-500 dark:from-amber-400 dark:to-orange-400 bg-clip-text text-transparent">Cocok untuk Anda</span>
+              <span className="text-amber-500 dark:text-amber-400">Cocok untuk Anda</span>
             </h2>
             <p className="text-gray-500 dark:text-slate-400 mt-3 text-sm sm:text-base">
               Mulai belajar gratis tanpa batas, atau tingkatkan dengan paket Premium untuk akses tryout kelompok.
@@ -332,12 +332,12 @@ export default function Home() {
                 key={i}
                 className={`relative rounded-2xl p-7 border transition-all duration-300 ${
                   plan.highlighted
-                    ? 'bg-gradient-to-br from-indigo-50 dark:from-indigo-500/10 to-purple-50 dark:to-purple-500/5 border-indigo-300 dark:border-indigo-500/30 shadow-xl shadow-indigo-500/5'
+                    ? 'bg-indigo-50/50 dark:bg-indigo-950/20 border-indigo-300 dark:border-indigo-500/30 shadow-xl shadow-indigo-500/5'
                     : 'bg-white dark:bg-[#1E293B] border-gray-200 dark:border-white/[0.08]'
                 }`}
               >
                 {plan.highlighted && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-[10px] font-black uppercase tracking-widest px-4 py-1 rounded-full">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest px-4 py-1 rounded-full">
                     Populer
                   </div>
                 )}
@@ -364,7 +364,7 @@ export default function Home() {
                 <Link href="/register" className="block mt-7">
                   <Button className={`w-full h-11 font-extrabold rounded-xl transition-all duration-200 ${
                     plan.highlighted
-                      ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white shadow-lg shadow-indigo-500/15'
+                      ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/15'
                       : 'bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-700 dark:text-white border border-gray-300 dark:border-white/10'
                   }`}>
                     {plan.cta}
@@ -387,7 +387,7 @@ export default function Home() {
             </div>
             <h2 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight">
               Cerita Sukses{' '}
-              <span className="bg-gradient-to-r from-rose-600 to-pink-600 dark:from-rose-400 dark:to-pink-400 bg-clip-text text-transparent">Kawan ASN</span>
+              <span className="text-rose-600 dark:text-rose-400">Kawan ASN</span>
             </h2>
           </div>
 
@@ -415,7 +415,7 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════════ */}
       <section className="relative py-20 border-t border-gray-100 dark:border-white/[0.04]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative bg-gradient-to-br from-indigo-50 dark:from-indigo-500/10 to-purple-50 dark:to-purple-500/5 border border-indigo-200 dark:border-indigo-500/15 rounded-3xl p-8 md:p-12 overflow-hidden">
+          <div className="relative bg-indigo-50/50 dark:bg-indigo-950/25 border border-indigo-200 dark:border-indigo-500/15 rounded-3xl p-8 md:p-12 overflow-hidden">
             <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-indigo-500/5 rounded-full blur-[80px] pointer-events-none" />
             <div className="relative grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
               <div className="space-y-5">
@@ -424,13 +424,13 @@ export default function Home() {
                 </div>
                 <h2 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white leading-tight">
                   Ajak Teman, Dapatkan{' '}
-                  <span className="bg-gradient-to-r from-amber-500 to-orange-500 dark:from-amber-400 dark:to-orange-400 bg-clip-text text-transparent">Komisi Rp 10.000</span>
+                  <span className="text-amber-500 dark:text-amber-400">Komisi Rp 10.000</span>
                 </h2>
                 <p className="text-gray-500 dark:text-slate-400 leading-relaxed">
                   Bagikan kode referral unik Anda kepada teman-teman. Setiap teman yang mendaftar dan membeli paket Premium akan memberikan komisi langsung ke saldo Anda.
                 </p>
                 <Link href="/register">
-                  <Button className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-extrabold h-11 px-8 rounded-xl shadow-lg shadow-indigo-500/15 transition-all duration-200">
+                  <Button className="bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold h-11 px-8 rounded-xl shadow-lg shadow-indigo-500/15 transition-all duration-200">
                     Mulai Sekarang <ArrowRight className="ml-2 h-4.5 w-4.5" />
                   </Button>
                 </Link>
@@ -467,7 +467,7 @@ export default function Home() {
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link href="/register">
-              <Button size="lg" className="w-full sm:w-auto bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white font-extrabold text-base px-10 h-12 shadow-lg shadow-indigo-500/20 rounded-xl transition-all duration-300">
+              <Button size="lg" className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-base px-10 h-12 shadow-lg shadow-indigo-500/20 rounded-xl transition-all duration-300">
                 Daftar Gratis Sekarang <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
