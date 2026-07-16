@@ -36,8 +36,8 @@ export default function Home() {
     },
     {
       icon: Brain,
-      title: 'Latihan Soal per Kategori',
-      description: 'Bank soal lengkap untuk latihan mandiri TWK, TIU, dan TKP tanpa batas waktu. Cocok untuk mendalami kelemahan Anda.',
+      title: 'Analisis & Rekomendasi Belajar',
+      description: 'Analisis cerdas dari riwayat hasil tryout sebelumnya untuk merekomendasikan topik materi personal yang perlu Anda pelajari lebih dalam.',
       color: 'purple',
     },
     {
@@ -186,6 +186,7 @@ export default function Home() {
                   { icon: BookOpen, label: 'Materi + Quiz Interaktif', desc: 'Baca modul, kerjakan quiz, tandai selesai.', color: 'text-indigo-600 dark:text-indigo-400 bg-indigo-500/10' },
                   { icon: Award, label: 'CAT Simulator BKN', desc: '110 soal, timer, navigasi, penanda ragu.', color: 'text-sky-600 dark:text-sky-400 bg-sky-500/10' },
                   { icon: CheckCircle2, label: 'Passing Grade Otomatis', desc: 'Skor pecah per TWK, TIU, TKP.', color: 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10' },
+                  { icon: Brain, label: 'Analisis & Rekomendasi Belajar', desc: 'Rekomendasi belajar personal atas dasar hasil tryout sebelumnya.', color: 'text-rose-600 dark:text-rose-400 bg-rose-500/10' },
                   { icon: Trophy, label: 'Papan Peringkat', desc: 'Ranking nasional per tryout kelompok.', color: 'text-amber-600 dark:text-amber-400 bg-amber-500/10' },
                   { icon: Share2, label: 'Program Afiliasi', desc: 'Dapatkan komisi Rp 10.000 per referral.', color: 'text-purple-600 dark:text-purple-400 bg-purple-500/10' },
                 ].map((item, i) => (
