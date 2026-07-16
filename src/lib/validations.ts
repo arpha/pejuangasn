@@ -19,6 +19,9 @@ export const registerSchema = z
     password: z.string().min(6, { message: 'Password minimal 6 karakter' }),
     confirmPassword: z.string(),
     referralCode: z.string().optional(),
+    agreeTerms: z.literal(true, {
+      errorMap: () => ({ message: 'Anda harus menyetujui Ketentuan Layanan & Kebijakan Privasi' }),
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Konfirmasi password tidak cocok',

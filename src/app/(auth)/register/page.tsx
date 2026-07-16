@@ -235,6 +235,30 @@ export default function RegisterPage() {
               </div>
               <p className="text-[10px] text-gray-400 dark:text-slate-500">Punya kode referral dari teman? Masukkan di sini untuk mendapatkan benefit khusus.</p>
             </div>
+
+            {/* Agree to Terms & Privacy Policy Checkbox */}
+            <div className="space-y-1.5 pt-2 border-t border-gray-200 dark:border-slate-600/30">
+              <div className="flex items-start gap-2.5">
+                <input
+                  id="agreeTerms"
+                  type="checkbox"
+                  className="h-4.5 w-4.5 rounded border-gray-300 dark:border-slate-600 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-0 bg-gray-50 dark:bg-slate-800 cursor-pointer mt-0.5"
+                  {...register('agreeTerms')}
+                />
+                <Label htmlFor="agreeTerms" className="text-xs font-semibold text-gray-500 dark:text-slate-400 leading-normal cursor-pointer select-none">
+                  Saya menyetujui{' '}
+                  <Link href="/ketentuan-layanan" target="_blank" className="text-indigo-600 dark:text-indigo-400 hover:underline font-bold">
+                    Ketentuan Layanan
+                  </Link>{' '}
+                  dan{' '}
+                  <Link href="/kebijakan-privasi" target="_blank" className="text-indigo-600 dark:text-indigo-400 hover:underline font-bold">
+                    Kebijakan Privasi
+                  </Link>{' '}
+                  Kawan ASN.
+                </Label>
+              </div>
+              {errors.agreeTerms && <p className="text-xs text-rose-500 font-medium mt-1">{errors.agreeTerms.message}</p>}
+            </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4 px-6 sm:px-8 pb-8 pt-4 border-t border-gray-200 dark:border-slate-600/20 mt-2">
             <Button
