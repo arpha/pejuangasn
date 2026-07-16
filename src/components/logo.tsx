@@ -20,14 +20,16 @@ export function LogoIcon({ size = 40, className, style, ...props }: LogoIconProp
 }
 
 export function Logo({ className, size = 32, showText = true }: { className?: string; size?: number; showText?: boolean }) {
-  return (
-    <div className={cn("flex items-center gap-3 select-none", className)}>
-      <LogoIcon size={size} />
-      {showText && (
-        <span className="font-black text-xl tracking-tight text-[#23384E] dark:text-[#DDD7C8]">
-          Kawan <span className="text-indigo-600 dark:text-indigo-400">ASN</span>
-        </span>
-      )}
-    </div>
-  );
+  if (showText) {
+    return (
+      <img
+        src="/logo-full.png"
+        alt="Kawan ASN Logo"
+        className={cn("select-none shrink-0 object-contain", className)}
+        style={{ height: size, width: "auto" }}
+      />
+    );
+  }
+
+  return <LogoIcon size={size} className={className} />;
 }
