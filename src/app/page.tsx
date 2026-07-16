@@ -49,10 +49,10 @@ export default function Home() {
   ];
 
   const stats = [
-    { value: '110', label: 'Soal per Ujian', sublabel: 'Format Resmi BKN' },
-    { value: '3', label: 'Modul SKD', sublabel: 'TWK, TIU, TKP' },
-    { value: '100%', label: 'Gratis Akses', sublabel: 'Tryout Individu' },
-    { value: '24/7', label: 'Akses Kapanpun', sublabel: 'Online & Mobile' },
+    { value: '5.000+', label: 'Bank Soal SKD', sublabel: 'TWK, TIU, & TKP Terbaru' },
+    { value: '100+', label: 'Simulasi Tryout CAT', sublabel: 'Standar Kelulusan BKN' },
+    { value: '10.000+', label: 'Pengguna Aktif', sublabel: 'Saling Bersaing Nasional' },
+    { value: '100%', label: 'Akurat & Real-time', sublabel: 'Analisis Skor & Passing Grade' },
   ];
 
   const plans = [
