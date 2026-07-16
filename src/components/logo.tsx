@@ -14,7 +14,7 @@ export function LogoIcon({ size = 40, className, style, ...props }: LogoIconProp
       alt="Kawan ASN Logo Icon"
       width={displaySize}
       height={displaySize}
-      className={cn("select-none shrink-0 rounded-full object-contain", className)}
+      className={cn("select-none shrink-0 rounded-full object-contain dark:brightness-0 dark:invert", className)}
       style={{ width: displaySize, height: displaySize, ...style }}
       {...props}
     />
@@ -29,7 +29,7 @@ export function Logo({ className, size = 32, showText = true }: { className?: st
       <img
         src="/logo-full.png"
         alt="Kawan ASN Logo"
-        className={cn("select-none shrink-0 object-contain", className)}
+        className={cn("select-none shrink-0 object-contain dark:brightness-0 dark:invert", className)}
         style={{ height: displayHeight, width: "auto" }}
       />
     );
