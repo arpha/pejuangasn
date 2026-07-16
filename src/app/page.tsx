@@ -566,12 +566,9 @@ export default function Home() {
           </div>
 
           {/* Bottom Copyright */}
-          <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="pt-8 text-center">
             <p className="text-xs text-gray-400 dark:text-slate-500">
               © {new Date().getFullYear()} Kawan ASN. Hak Cipta Dilindungi.
-            </p>
-            <p className="text-xs text-gray-400 dark:text-slate-600">
-              Dibuat dengan dedikasi untuk kesuksesan CPNS & PPPK Indonesia.
             </p>
           </div>
         </div>
