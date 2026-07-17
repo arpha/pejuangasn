@@ -324,7 +324,7 @@ export function ShapeBuilder({
     return null;
   };
 
-  // Coordinate calculations
+  // Coordinate calculations (mouse)
   const getCoordinates = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (!canvasRef.current) return { x: 0, y: 0 };
     const canvas = canvasRef.current;
@@ -337,6 +337,26 @@ export function ShapeBuilder({
     let y = (offsetY / rect.height) * canvas.height;
 
     // Snap to grid if enabled (20px intervals)
+    if (snapToGrid) {
+      const gridSize = 20;
+      x = Math.round(x / gridSize) * gridSize;
+      y = Math.round(y / gridSize) * gridSize;
+    }
+
+    return { x, y };
+  };
+
+  // Coordinate calculations (touch / pen tablet)
+  const getTouchCoordinates = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (!canvasRef.current) return { x: 0, y: 0 };
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0] || e.changedTouches[0];
+    if (!touch) return { x: 0, y: 0 };
+
+    let x = ((touch.clientX - rect.left) / rect.width) * canvas.width;
+    let y = ((touch.clientY - rect.top) / rect.height) * canvas.height;
+
     if (snapToGrid) {
       const gridSize = 20;
       x = Math.round(x / gridSize) * gridSize;
@@ -538,6 +558,160 @@ export function ShapeBuilder({
           };
         });
       }
+    }
+  };
+
+  // Touch event handlers (mirrors mouse handlers for pen/tablet support)
+  const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
+    const { x, y } = getTouchCoordinates(e);
+    const syntheticEvent = {
+      ...e,
+      nativeEvent: e.nativeEvent,
+      clientX: e.touches[0]?.clientX ?? 0,
+      clientY: e.touches[0]?.clientY ?? 0,
+      shiftKey: e.shiftKey,
+    } as unknown as React.MouseEvent<HTMLCanvasElement>;
+    // Reuse mouse handler logic by injecting coordinates manually
+    setIsInteracting(true);
+
+    if (tool === 'select') {
+      if (selectedShapeIds.length === 1) {
+        const shape = shapes.find(s => s.id === selectedShapeIds[0]);
+        if (shape) {
+          const { maxX, maxY } = getShapeBounds(shape);
+          const distToHandle = Math.sqrt(Math.pow(x - (maxX + 6), 2) + Math.pow(y - (maxY + 6), 2));
+          if (distToHandle <= 15) {
+            setDragMode('resize');
+            setDragStartMouseX(x);
+            setDragStartMouseY(y);
+            setShapeDragOffset({ startX: shape.startX, startY: shape.startY, endX: shape.endX, endY: shape.endY });
+            setShapePointsOffset(shape.points ? [...shape.points] : []);
+            return;
+          }
+        }
+      }
+      const clickedId = findShapeAtPoint(x, y);
+      if (clickedId) {
+        let newSelection = [...selectedShapeIds];
+        if (!newSelection.includes(clickedId)) newSelection = [clickedId];
+        setSelectedShapeIds(newSelection);
+        setDragMode('move');
+        setDragStartMouseX(x);
+        setDragStartMouseY(y);
+        const offsets = shapes
+          .filter(s => newSelection.includes(s.id))
+          .map(s => ({ id: s.id, startX: s.startX, startY: s.startY, endX: s.endX, endY: s.endY, points: s.points ? [...s.points] : [] }));
+        setMultiDragOffsets(offsets);
+      } else {
+        setSelectedShapeIds([]);
+        setDragMode('select-box');
+        setDragStartMouseX(x);
+        setDragStartMouseY(y);
+        setSelectionBox({ startX: x, startY: y, endX: x, endY: y });
+      }
+    } else {
+      const newShape: Shape = {
+        id: `shape-${Math.random().toString(36).substring(2)}-${Date.now()}`,
+        type: tool,
+        startX: x,
+        startY: y,
+        endX: x,
+        endY: y,
+        color: strokeColor,
+        fillColor: fillColor,
+        lineWidth: lineWidth,
+        sides: polygonSides,
+        lineStyle: lineStyle,
+        points: (tool === 'pencil' || tool === 'eraser') ? [{ x, y }] : []
+      };
+      if (tool === 'text') {
+        if (textInput.trim() === '') {
+          setIsInteracting(false);
+          return;
+        }
+        newShape.text = textInput;
+        setTextInput('');
+        setShapes(prev => { const updated = [...prev, newShape]; saveToHistory(updated); return updated; });
+        setIsInteracting(false);
+      } else {
+        setActiveShape(newShape);
+      }
+    }
+    void syntheticEvent;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
+    if (!isInteracting) return;
+    const { x, y } = getTouchCoordinates(e);
+
+    if (tool === 'select') {
+      const dx = x - dragStartMouseX;
+      const dy = y - dragStartMouseY;
+      if (dragMode === 'move' && selectedShapeIds.length > 0) {
+        setShapes(prev => prev.map(s => {
+          const offset = multiDragOffsets.find(o => o.id === s.id);
+          if (!offset) return s;
+          const updated = { ...s, startX: offset.startX + dx, startY: offset.startY + dy, endX: offset.endX + dx, endY: offset.endY + dy };
+          if (s.points && offset.points.length > 0) updated.points = offset.points.map(p => ({ x: p.x + dx, y: p.y + dy }));
+          return updated;
+        }));
+      } else if (dragMode === 'resize' && selectedShapeIds.length === 1) {
+        setShapes(prev => prev.map(s => {
+          if (s.id !== selectedShapeIds[0]) return s;
+          const width = shapeDragOffset.endX - shapeDragOffset.startX;
+          const height = shapeDragOffset.endY - shapeDragOffset.startY;
+          const newWidth = shapeDragOffset.endX - shapeDragOffset.startX + dx;
+          const newHeight = shapeDragOffset.endY - shapeDragOffset.startY + dy;
+          const scaleX = width === 0 ? 1 : newWidth / width;
+          const scaleY = height === 0 ? 1 : newHeight / height;
+          const updated = { ...s, endX: shapeDragOffset.endX + dx, endY: shapeDragOffset.endY + dy };
+          if (s.points && shapePointsOffset.length > 0) {
+            updated.points = shapePointsOffset.map(p => ({ x: s.startX + (p.x - s.startX) * scaleX, y: s.startY + (p.y - s.startY) * scaleY }));
+          }
+          return updated;
+        }));
+      } else if (dragMode === 'select-box') {
+        setSelectionBox(prev => prev ? { ...prev, endX: x, endY: y } : null);
+      }
+    } else if (activeShape) {
+      if (tool === 'pencil' || tool === 'eraser') {
+        setActiveShape(prev => prev ? { ...prev, points: [...(prev.points || []), { x, y }] } : null);
+      } else {
+        setActiveShape(prev => prev ? { ...prev, endX: x, endY: y } : null);
+      }
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
+    if (!isInteracting) return;
+    setIsInteracting(false);
+
+    if (tool === 'select') {
+      if (dragMode === 'select-box' && selectionBox) {
+        const xMin = Math.min(selectionBox.startX, selectionBox.endX);
+        const xMax = Math.max(selectionBox.startX, selectionBox.endX);
+        const yMin = Math.min(selectionBox.startY, selectionBox.endY);
+        const yMax = Math.max(selectionBox.startY, selectionBox.endY);
+        const width = xMax - xMin;
+        const height = yMax - yMin;
+        if (width >= 4 || height >= 4) {
+          const newlySelected: string[] = [];
+          shapes.forEach(shape => {
+            const { minX, maxX, minY, maxY } = getShapeBounds(shape);
+            if (!(maxX < xMin || minX > xMax || maxY < yMin || minY > yMax)) newlySelected.push(shape.id);
+          });
+          setSelectedShapeIds(newlySelected);
+        }
+        setSelectionBox(null);
+      }
+      setDragMode('none');
+      saveToHistory(shapes);
+    } else if (activeShape) {
+      setShapes(prev => { const updated = [...prev, activeShape]; saveToHistory(updated); return updated; });
+      setActiveShape(null);
     }
   };
 
@@ -1616,6 +1790,10 @@ export function ShapeBuilder({
                   onMouseMove={handleMouseMove}
                   onMouseUp={handleMouseUp}
                   onMouseLeave={handleMouseUp}
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
+                  style={{ touchAction: 'none' }}
                   className="cursor-crosshair bg-white w-full h-full block"
                 />
               </div>
