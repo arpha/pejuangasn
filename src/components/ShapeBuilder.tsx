@@ -5,7 +5,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { 
   Square, Circle, Triangle, Type, Eraser, 
   Trash2, Undo, Save, X, Edit3, Minimize2,
-  ArrowRight, ArrowLeftRight, Moon, Star, Sun, Hexagon, Diamond, Heart, Droplet,
+  ArrowRight, ArrowLeftRight, Moon, Star, Sun, Hexagon, Diamond, Heart, Droplet, Sparkles,
   MousePointer, Move, Copy, FlipHorizontal, FlipVertical, RotateCw
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -21,7 +21,7 @@ interface ShapeBuilderProps {
   title?: string;
 }
 
-type Tool = 'select' | 'pencil' | 'line' | 'arrow' | 'arrow-double' | 'arrow-block' | 'rectangle' | 'trapezium' | 'rhombus' | 'circle' | 'semicircle' | 'triangle' | 'triangle-equilateral' | 'triangle-right' | 'polygon' | 'star' | 'crescent' | 'sun' | 'text' | 'eraser' | 'oval' | 'semioval' | 'heart' | 'semiheart' | 'droplet';
+type Tool = 'select' | 'pencil' | 'smart-pencil' | 'line' | 'arrow' | 'arrow-double' | 'arrow-block' | 'rectangle' | 'trapezium' | 'rhombus' | 'circle' | 'semicircle' | 'triangle' | 'triangle-equilateral' | 'triangle-right' | 'polygon' | 'star' | 'crescent' | 'sun' | 'text' | 'eraser' | 'oval' | 'semioval' | 'heart' | 'semiheart' | 'droplet';
 
 interface Point {
   x: number;
@@ -366,6 +366,33 @@ export function ShapeBuilder({
     return { x, y };
   };
 
+  // ── Douglas-Peucker path simplification ──────────────────────────────────
+  const perpendicularDistance = (pt: Point, lineStart: Point, lineEnd: Point): number => {
+    const dx = lineEnd.x - lineStart.x;
+    const dy = lineEnd.y - lineStart.y;
+    const mag = Math.sqrt(dx * dx + dy * dy);
+    if (mag === 0) return Math.sqrt(Math.pow(pt.x - lineStart.x, 2) + Math.pow(pt.y - lineStart.y, 2));
+    return Math.abs(dx * (lineStart.y - pt.y) - (lineStart.x - pt.x) * dy) / mag;
+  };
+
+  const douglasPeucker = (pts: Point[], epsilon: number): Point[] => {
+    if (pts.length <= 2) return pts;
+    let maxDist = 0;
+    let maxIdx = 0;
+    const start = pts[0];
+    const end = pts[pts.length - 1];
+    for (let i = 1; i < pts.length - 1; i++) {
+      const d = perpendicularDistance(pts[i], start, end);
+      if (d > maxDist) { maxDist = d; maxIdx = i; }
+    }
+    if (maxDist > epsilon) {
+      const left = douglasPeucker(pts.slice(0, maxIdx + 1), epsilon);
+      const right = douglasPeucker(pts.slice(maxIdx), epsilon);
+      return [...left.slice(0, -1), ...right];
+    }
+    return [start, end];
+  };
+
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const { x, y } = getCoordinates(e);
     setIsInteracting(true);
@@ -451,7 +478,7 @@ export function ShapeBuilder({
         lineWidth: lineWidth,
         sides: polygonSides,
         lineStyle: lineStyle,
-        points: (tool === 'pencil' || tool === 'eraser') ? [{ x, y }] : []
+        points: (tool === 'pencil' || tool === 'eraser' || tool === 'smart-pencil') ? [{ x, y }] : []
       };
 
       if (tool === 'text') {
@@ -540,7 +567,7 @@ export function ShapeBuilder({
         });
       }
     } else if (activeShape) {
-      if (tool === 'pencil' || tool === 'eraser') {
+      if (tool === 'pencil' || tool === 'eraser' || tool === 'smart-pencil') {
         setActiveShape(prev => {
           if (!prev) return null;
           return {
@@ -623,7 +650,7 @@ export function ShapeBuilder({
         lineWidth: lineWidth,
         sides: polygonSides,
         lineStyle: lineStyle,
-        points: (tool === 'pencil' || tool === 'eraser') ? [{ x, y }] : []
+        points: (tool === 'pencil' || tool === 'eraser' || tool === 'smart-pencil') ? [{ x, y }] : []
       };
       if (tool === 'text') {
         if (textInput.trim() === '') {
@@ -676,7 +703,7 @@ export function ShapeBuilder({
         setSelectionBox(prev => prev ? { ...prev, endX: x, endY: y } : null);
       }
     } else if (activeShape) {
-      if (tool === 'pencil' || tool === 'eraser') {
+      if (tool === 'pencil' || tool === 'eraser' || tool === 'smart-pencil') {
         setActiveShape(prev => prev ? { ...prev, points: [...(prev.points || []), { x, y }] } : null);
       } else {
         setActiveShape(prev => prev ? { ...prev, endX: x, endY: y } : null);
@@ -710,7 +737,12 @@ export function ShapeBuilder({
       setDragMode('none');
       saveToHistory(shapes);
     } else if (activeShape) {
-      setShapes(prev => { const updated = [...prev, activeShape]; saveToHistory(updated); return updated; });
+      // Apply Douglas-Peucker smoothing for smart-pencil on touch end
+      let shapeToSave = activeShape;
+      if (activeShape.type === 'smart-pencil' && activeShape.points && activeShape.points.length > 2) {
+        shapeToSave = { ...activeShape, points: douglasPeucker(activeShape.points, 8) };
+      }
+      setShapes(prev => { const updated = [...prev, shapeToSave]; saveToHistory(updated); return updated; });
       setActiveShape(null);
     }
   };
@@ -754,8 +786,13 @@ export function ShapeBuilder({
       setDragMode('none');
       saveToHistory(shapes);
     } else if (activeShape) {
+      // Apply Douglas-Peucker smoothing for smart-pencil before saving
+      let shapeToSave = activeShape;
+      if (activeShape.type === 'smart-pencil' && activeShape.points && activeShape.points.length > 2) {
+        shapeToSave = { ...activeShape, points: douglasPeucker(activeShape.points, 8) };
+      }
       setShapes(prev => {
-        const updated = [...prev, activeShape];
+        const updated = [...prev, shapeToSave];
         saveToHistory(updated);
         return updated;
       });
@@ -1016,6 +1053,29 @@ export function ShapeBuilder({
       ctx.moveTo(shape.points[0].x, shape.points[0].y);
       for (let i = 1; i < shape.points.length; i++) {
         ctx.lineTo(shape.points[i].x, shape.points[i].y);
+      }
+      ctx.stroke();
+    } else if (shape.type === 'smart-pencil') {
+      // Render with quadratic bezier through midpoints for ultra-smooth curves
+      if (!shape.points || shape.points.length === 0) {
+        ctx.restore();
+        return;
+      }
+      ctx.beginPath();
+      ctx.moveTo(shape.points[0].x, shape.points[0].y);
+      if (shape.points.length === 1) {
+        ctx.arc(shape.points[0].x, shape.points[0].y, shape.lineWidth / 2, 0, 2 * Math.PI);
+        ctx.fill();
+      } else if (shape.points.length === 2) {
+        ctx.lineTo(shape.points[1].x, shape.points[1].y);
+      } else {
+        for (let i = 1; i < shape.points.length - 1; i++) {
+          const midX = (shape.points[i].x + shape.points[i + 1].x) / 2;
+          const midY = (shape.points[i].y + shape.points[i + 1].y) / 2;
+          ctx.quadraticCurveTo(shape.points[i].x, shape.points[i].y, midX, midY);
+        }
+        const last = shape.points[shape.points.length - 1];
+        ctx.lineTo(last.x, last.y);
       }
       ctx.stroke();
     } else if (shape.type === 'line') {
@@ -1479,6 +1539,7 @@ export function ShapeBuilder({
               <div className="grid grid-cols-2 gap-1.5">
                 {[
                   { id: 'pencil', label: 'Pensil', icon: Edit3 },
+                  { id: 'smart-pencil', label: 'Pensil Pintar ✨', icon: Sparkles },
                   { id: 'line', label: 'Garis', icon: Minimize2 },
                   { id: 'arrow', label: 'Panah', icon: ArrowRight },
                   { id: 'arrow-double', label: 'Panah 2 Arah', icon: ArrowLeftRight },
