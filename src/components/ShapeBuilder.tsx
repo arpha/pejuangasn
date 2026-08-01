@@ -6,7 +6,8 @@ import {
   Square, Circle, Triangle, Type, Eraser, 
   Trash2, Undo, Save, X, Edit3, Minimize2,
   ArrowRight, ArrowLeftRight, Moon, Star, Sun, Hexagon, Diamond, Heart, Droplet, Sparkles,
-  MousePointer, Move, Copy, FlipHorizontal, FlipVertical, RotateCw
+  MousePointer, Move, Copy, FlipHorizontal, FlipVertical, RotateCw,
+  Link, Link2Off
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -45,6 +46,7 @@ interface Shape {
   flippedV?: boolean;
   rotation?: number; // rotation in degrees
   lineStyle?: 'solid' | 'dashed';
+  groupId?: string; // identifier to group multiple shapes together
 }
 
 interface DragOffset {
@@ -99,6 +101,14 @@ export function ShapeBuilder({
   // Resize offset (for single shape resizing)
   const [shapeDragOffset, setShapeDragOffset] = useState({ startX: 0, startY: 0, endX: 0, endY: 0 });
   const [shapePointsOffset, setShapePointsOffset] = useState<Point[]>([]);
+
+  // State to track original shapes during range slider rotation to avoid math drifts
+  const [rotationStartState, setRotationStartState] = useState<{
+    shapes: Shape[];
+    initialRotationValue: number;
+    pivotX: number;
+    pivotY: number;
+  } | null>(null);
 
   // History stack for Undo
   const [history, setHistory] = useState<Shape[][]>([]);
@@ -226,6 +236,16 @@ export function ShapeBuilder({
     }
   }, [selectedShapeIds]);
 
+  // Keep selection group-consistent (selecting one selects all in the group)
+  useEffect(() => {
+    if (selectedShapeIds.length > 0) {
+      const expanded = expandSelectionWithGroups(selectedShapeIds, shapes);
+      if (expanded.length !== selectedShapeIds.length) {
+        setSelectedShapeIds(expanded);
+      }
+    }
+  }, [selectedShapeIds, shapes]);
+
   // Callback ref for context initialization
   const onCanvasMount = React.useCallback((canvas: HTMLCanvasElement | null) => {
     if (!canvas) {
@@ -276,6 +296,43 @@ export function ShapeBuilder({
       minY = shape.startY - shape.lineWidth * 3;
       maxY = shape.startY + shape.lineWidth * 3;
     }
+
+    return { minX, maxX, minY, maxY };
+  };
+
+  const expandSelectionWithGroups = (ids: string[], allShapes: Shape[]): string[] => {
+    const groupIds = new Set<string>();
+    ids.forEach(id => {
+      const shape = allShapes.find(s => s.id === id);
+      if (shape?.groupId) {
+        groupIds.add(shape.groupId);
+      }
+    });
+    if (groupIds.size === 0) return ids;
+
+    const expanded = new Set(ids);
+    allShapes.forEach(shape => {
+      if (shape.groupId && groupIds.has(shape.groupId)) {
+        expanded.add(shape.id);
+      }
+    });
+    return Array.from(expanded);
+  };
+
+  const getMultipleShapesBounds = (selectedShapes: Shape[]) => {
+    if (selectedShapes.length === 0) return { minX: 0, maxX: 0, minY: 0, maxY: 0 };
+    let minX = Infinity;
+    let maxX = -Infinity;
+    let minY = Infinity;
+    let maxY = -Infinity;
+
+    selectedShapes.forEach(shape => {
+      const bounds = getShapeBounds(shape);
+      if (bounds.minX < minX) minX = bounds.minX;
+      if (bounds.maxX > maxX) maxX = bounds.maxX;
+      if (bounds.minY < minY) minY = bounds.minY;
+      if (bounds.maxY > maxY) maxY = bounds.maxY;
+    });
 
     return { minX, maxX, minY, maxY };
   };
@@ -841,8 +898,52 @@ export function ShapeBuilder({
     }
   };
 
+  const handleGroupShapes = () => {
+    if (selectedShapeIds.length < 2) return;
+    const newGroupId = `group-${Math.random().toString(36).substring(2)}-${Date.now()}`;
+    const updated = shapes.map(s => {
+      if (selectedShapeIds.includes(s.id)) {
+        return { ...s, groupId: newGroupId };
+      }
+      return s;
+    });
+    setShapes(updated);
+    saveToHistory(updated);
+    toast.success(`${selectedShapeIds.length} objek berhasil digabungkan.`);
+  };
+
+  const handleUngroupShapes = () => {
+    const groupIdsToUngroup = new Set<string>();
+    shapes.forEach(s => {
+      if (selectedShapeIds.includes(s.id) && s.groupId) {
+        groupIdsToUngroup.add(s.groupId);
+      }
+    });
+
+    if (groupIdsToUngroup.size === 0) return;
+
+    const updated = shapes.map(s => {
+      if (s.groupId && groupIdsToUngroup.has(s.groupId)) {
+        const { groupId, ...rest } = s;
+        void groupId;
+        return rest;
+      }
+      return s;
+    });
+    setShapes(updated);
+    saveToHistory(updated);
+    toast.success('Objek berhasil dipisahkan.');
+  };
+
   const handlePaste = () => {
     if (copiedShapes.length > 0) {
+      const groupMap = new Map<string, string>();
+      copiedShapes.forEach(s => {
+        if (s.groupId && !groupMap.has(s.groupId)) {
+          groupMap.set(s.groupId, `group-${Math.random().toString(36).substring(2)}-${Date.now()}`);
+        }
+      });
+
       const pastedShapes: Shape[] = copiedShapes.map(s => {
         const newId = `shape-${Math.random().toString(36).substring(2)}-${Date.now()}`;
         const pasted: Shape = {
@@ -852,6 +953,7 @@ export function ShapeBuilder({
           startY: s.startY + 25,
           endX: s.endX + 25,
           endY: s.endY + 25,
+          groupId: s.groupId ? groupMap.get(s.groupId) : undefined
         };
         if (s.points) {
           pasted.points = s.points.map(p => ({ x: p.x + 25, y: p.y + 25 }));
@@ -871,23 +973,30 @@ export function ShapeBuilder({
 
   const handleDuplicate = () => {
     if (selectedShapeIds.length > 0) {
-      const duplicates: Shape[] = shapes
-        .filter(s => selectedShapeIds.includes(s.id))
-        .map(s => {
-          const newId = `shape-${Math.random().toString(36).substring(2)}-${Date.now()}`;
-          const duplicated: Shape = {
-            ...s,
-            id: newId,
-            startX: s.startX + 25,
-            startY: s.startY + 25,
-            endX: s.endX + 25,
-            endY: s.endY + 25,
-          };
-          if (s.points) {
-            duplicated.points = s.points.map(p => ({ x: p.x + 25, y: p.y + 25 }));
-          }
-          return duplicated;
-        });
+      const selected = shapes.filter(s => selectedShapeIds.includes(s.id));
+      const groupMap = new Map<string, string>();
+      selected.forEach(s => {
+        if (s.groupId && !groupMap.has(s.groupId)) {
+          groupMap.set(s.groupId, `group-${Math.random().toString(36).substring(2)}-${Date.now()}`);
+        }
+      });
+
+      const duplicates: Shape[] = selected.map(s => {
+        const newId = `shape-${Math.random().toString(36).substring(2)}-${Date.now()}`;
+        const duplicated: Shape = {
+          ...s,
+          id: newId,
+          startX: s.startX + 25,
+          startY: s.startY + 25,
+          endX: s.endX + 25,
+          endY: s.endY + 25,
+          groupId: s.groupId ? groupMap.get(s.groupId) : undefined
+        };
+        if (s.points) {
+          duplicated.points = s.points.map(p => ({ x: p.x + 25, y: p.y + 25 }));
+        }
+        return duplicated;
+      });
 
       setShapes(prev => {
         const updated = [...prev, ...duplicates];
@@ -928,30 +1037,124 @@ export function ShapeBuilder({
   };
 
   const handleRotateChange = (deg: number) => {
-    if (selectedShapeIds.length > 0) {
-      const updated = shapes.map(s => {
-        if (selectedShapeIds.includes(s.id)) {
-          return { ...s, rotation: deg };
-        }
-        return s;
-      });
-      setShapes(updated);
+    if (selectedShapeIds.length === 0) return;
+
+    let currentStartState = rotationStartState;
+    if (!currentStartState) {
+      const selectedShapes = shapes.filter(s => selectedShapeIds.includes(s.id));
+      const bounds = getMultipleShapesBounds(selectedShapes);
+      const pivotX = (bounds.minX + bounds.maxX) / 2;
+      const pivotY = (bounds.minY + bounds.maxY) / 2;
+      const primaryShape = shapes.find(s => s.id === selectedShapeIds[0]);
+      const initialRotationValue = primaryShape ? (primaryShape.rotation || 0) : 0;
+
+      currentStartState = {
+        shapes: JSON.parse(JSON.stringify(shapes)),
+        initialRotationValue,
+        pivotX,
+        pivotY
+      };
+      setRotationStartState(currentStartState);
     }
+
+    const deltaDeg = deg - currentStartState.initialRotationValue;
+    const deltaRad = (deltaDeg * Math.PI) / 180;
+
+    const updated = shapes.map(s => {
+      const originalShape = currentStartState!.shapes.find(os => os.id === s.id);
+      if (!originalShape || !selectedShapeIds.includes(s.id)) {
+        return s;
+      }
+
+      const bounds = getShapeBounds(originalShape);
+      const cx = (bounds.minX + bounds.maxX) / 2;
+      const cy = (bounds.minY + bounds.maxY) / 2;
+
+      const cos = Math.cos(deltaRad);
+      const sin = Math.sin(deltaRad);
+      const dx = cx - currentStartState!.pivotX;
+      const dy = cy - currentStartState!.pivotY;
+
+      const newCx = currentStartState!.pivotX + dx * cos - dy * sin;
+      const newCy = currentStartState!.pivotY + dx * sin + dy * cos;
+
+      const shiftX = newCx - cx;
+      const shiftY = newCy - cy;
+
+      const updatedShape: Shape = {
+        ...originalShape,
+        startX: originalShape.startX + shiftX,
+        startY: originalShape.startY + shiftY,
+        endX: originalShape.endX + shiftX,
+        endY: originalShape.endY + shiftY,
+        rotation: ((originalShape.rotation || 0) + deltaDeg + 360) % 360
+      };
+
+      if (originalShape.points && originalShape.points.length > 0) {
+        updatedShape.points = originalShape.points.map(p => ({
+          x: p.x + shiftX,
+          y: p.y + shiftY
+        }));
+      }
+
+      return updatedShape;
+    });
+
+    setShapes(updated);
   };
 
   const handleRotateChangeEnd = () => {
+    setRotationStartState(null);
     saveToHistory(shapes);
   };
 
   const handleRotate90 = () => {
     if (selectedShapeIds.length > 0) {
+      const selectedShapes = shapes.filter(s => selectedShapeIds.includes(s.id));
+      const bounds = getMultipleShapesBounds(selectedShapes);
+      const pivotX = (bounds.minX + bounds.maxX) / 2;
+      const pivotY = (bounds.minY + bounds.maxY) / 2;
+
+      const deltaDeg = 90;
+      const deltaRad = (deltaDeg * Math.PI) / 180;
+
       const updated = shapes.map(s => {
-        if (selectedShapeIds.includes(s.id)) {
-          const currentRot = s.rotation || 0;
-          return { ...s, rotation: (currentRot + 90) % 360 };
+        if (!selectedShapeIds.includes(s.id)) return s;
+
+        const bounds = getShapeBounds(s);
+        const cx = (bounds.minX + bounds.maxX) / 2;
+        const cy = (bounds.minY + bounds.maxY) / 2;
+
+        const cos = Math.cos(deltaRad);
+        const sin = Math.sin(deltaRad);
+        const dx = cx - pivotX;
+        const dy = cy - pivotY;
+
+        const newCx = pivotX + dx * cos - dy * sin;
+        const newCy = pivotY + dx * sin + dy * cos;
+
+        const shiftX = newCx - cx;
+        const shiftY = newCy - cy;
+
+        const updatedShape: Shape = {
+          ...s,
+          startX: s.startX + shiftX,
+          startY: s.startY + shiftY,
+          endX: s.endX + shiftX,
+          endY: s.endY + shiftY,
+          rotation: ((s.rotation || 0) + deltaDeg) % 360
+        };
+
+        if (s.points && s.points.length > 0) {
+          updatedShape.points = s.points.map(p => ({
+            x: p.x + shiftX,
+            y: p.y + shiftY
+          }));
         }
-        return s;
+
+        return updatedShape;
       });
+
       setShapes(updated);
       saveToHistory(updated);
       toast.success('Elemen diputar 90°.');
@@ -1616,6 +1819,34 @@ export function ShapeBuilder({
                     >
                       <Trash2 className="h-3 w-3" /> Hapus
                     </Button>
+                  </div>
+
+                  {/* Group & Ungroup */}
+                  <div className="flex gap-1.5 pt-1 border-t border-indigo-500/10">
+                    {selectedShapeIds.length >= 2 && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handleGroupShapes}
+                        className="h-8 flex-1 border-indigo-500/30 hover:bg-indigo-500/10 text-indigo-600 font-bold text-[10px] rounded-lg flex items-center justify-center gap-1"
+                        title="Gabungkan Objek terpilih menjadi satu grup"
+                      >
+                        <Link className="h-3.5 w-3.5" /> Gabungkan
+                      </Button>
+                    )}
+                    {shapes.some(s => selectedShapeIds.includes(s.id) && s.groupId) && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handleUngroupShapes}
+                        className="h-8 flex-1 border-orange-500/30 hover:bg-orange-500/10 text-orange-600 font-bold text-[10px] rounded-lg flex items-center justify-center gap-1"
+                        title="Pisahkan grup objek kembali menjadi objek independen"
+                      >
+                        <Link2Off className="h-3.5 w-3.5" /> Pisahkan
+                      </Button>
+                    )}
                   </div>
 
                   {/* Mirroring / Flipping shapes */}
