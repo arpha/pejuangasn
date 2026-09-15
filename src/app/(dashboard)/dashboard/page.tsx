@@ -441,32 +441,6 @@ export default function DashboardPage() {
                   </div>
                 </div>
               </CardContent>
-
-              {/* Locked Overlay for Free Accounts */}
-              {!isPremium && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center p-6 bg-background/50 backdrop-blur-[2px] z-10 text-center animate-in fade-in duration-300">
-                  <div className="max-w-md mx-auto space-y-3 p-6 rounded-2xl bg-card/95 border border-amber-500/30 shadow-2xl backdrop-blur-md">
-                    <div className="mx-auto w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-500 shadow-inner">
-                      <Lock className="h-6 w-6" />
-                    </div>
-                    <div className="space-y-1">
-                      <h4 className="text-base font-black text-foreground">
-                        Progress Belajar Khusus Akun Premium
-                      </h4>
-                      <p className="text-xs text-muted-foreground leading-relaxed">
-                        Fitur pelacakan ketuntasan materi SKD dan evaluasi nilai kuis per kategori hanya dapat diakses oleh member <strong>Premium</strong>.
-                      </p>
-                    </div>
-                    <div className="pt-2">
-                      <Link href="/profil">
-                        <Button className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs h-10 px-6 rounded-xl shadow-md gap-2 transition-all">
-                          <Crown className="h-4 w-4" /> Buka Akses Premium Sekarang
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
           </Card>
 
