@@ -227,20 +227,51 @@ export default function AdminBlogManagementPage() {
 
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
+    const savedScrollTop = textarea.scrollTop;
     const text = textarea.value;
-    const selectedText = text.substring(start, end);
-    const replacement = before + selectedText + after;
+
+    const isLinePrefix = (before === '## ' || before === '### ' || before === '- ' || before === '1. ' || before === '> ') && after === '';
+
+    let newText = '';
+    let newCursorStart = start;
+    let newCursorEnd = end;
+
+    if (isLinePrefix) {
+      const lineStart = text.lastIndexOf('\n', start - 1) + 1;
+      const lineEnd = text.indexOf('\n', end);
+      const actualLineEnd = lineEnd === -1 ? text.length : lineEnd;
+      const currentLine = text.substring(lineStart, actualLineEnd);
+
+      if (currentLine.startsWith(before)) {
+        const updatedLine = currentLine.slice(before.length);
+        newText = text.substring(0, lineStart) + updatedLine + text.substring(actualLineEnd);
+        newCursorStart = Math.max(lineStart, start - before.length);
+        newCursorEnd = Math.max(lineStart, end - before.length);
+      } else {
+        const updatedLine = before + currentLine;
+        newText = text.substring(0, lineStart) + updatedLine + text.substring(actualLineEnd);
+        newCursorStart = start + before.length;
+        newCursorEnd = end + before.length;
+      }
+    } else {
+      const selectedText = text.substring(start, end);
+      const replacement = before + selectedText + after;
+      newText = text.substring(0, start) + replacement + text.substring(end);
+      newCursorStart = start + before.length;
+      newCursorEnd = start + before.length + selectedText.length;
+    }
 
     setFormData(prev => ({
       ...prev,
-      content: text.substring(0, start) + replacement + text.substring(end)
+      content: newText
     }));
 
-    // Focus and restore select range
+    // Focus and restore select range & scroll position
     setTimeout(() => {
       textarea.focus();
-      textarea.setSelectionRange(start + before.length, start + before.length + selectedText.length);
-    }, 10);
+      textarea.setSelectionRange(newCursorStart, newCursorEnd);
+      textarea.scrollTop = savedScrollTop;
+    }, 0);
   };
 
   // Filter blogs based on search query and status filter

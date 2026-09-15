@@ -3,7 +3,7 @@ import React, { useState, useRef } from 'react';
 import { 
   Bold, Italic, Heading2, List, ListOrdered, 
   Quote, Code, Link as LinkIcon, Image as ImageIcon, 
-  Table as TableIcon, Eye, Edit3, Sparkles 
+  Table as TableIcon, Eye, Edit3
 } from 'lucide-react';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
 import TableBuilderModal from '@/components/TableBuilderModal';
@@ -37,17 +37,53 @@ export default function MarkdownEditor({
 
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
+    const savedScrollTop = textarea.scrollTop;
     const currentText = textarea.value;
-    const selectedText = currentText.substring(start, end);
-    const replacement = before + selectedText + after;
 
-    const newText = currentText.substring(0, start) + replacement + currentText.substring(end);
+    // Check if inserting a line-level prefix (e.g. '## ', '- ', '1. ', '> ')
+    const isLinePrefix = (before === '## ' || before === '### ' || before === '- ' || before === '1. ' || before === '> ') && after === '';
+
+    let newText = '';
+    let newCursorStart = start;
+    let newCursorEnd = end;
+
+    if (isLinePrefix) {
+      // Find start and end of line containing selection/cursor
+      const lineStart = currentText.lastIndexOf('\n', start - 1) + 1;
+      const lineEnd = currentText.indexOf('\n', end);
+      const actualLineEnd = lineEnd === -1 ? currentText.length : lineEnd;
+      const currentLine = currentText.substring(lineStart, actualLineEnd);
+
+      // Check if line already has this prefix (toggle behavior)
+      if (currentLine.startsWith(before)) {
+        const updatedLine = currentLine.slice(before.length);
+        newText = currentText.substring(0, lineStart) + updatedLine + currentText.substring(actualLineEnd);
+        newCursorStart = Math.max(lineStart, start - before.length);
+        newCursorEnd = Math.max(lineStart, end - before.length);
+      } else {
+        const updatedLine = before + currentLine;
+        newText = currentText.substring(0, lineStart) + updatedLine + currentText.substring(actualLineEnd);
+        newCursorStart = start + before.length;
+        newCursorEnd = end + before.length;
+      }
+    } else {
+      // Inline formatting (bold, italic, code, link, image)
+      const selectedText = currentText.substring(start, end);
+      const replacement = before + selectedText + after;
+      newText = currentText.substring(0, start) + replacement + currentText.substring(end);
+      newCursorStart = start + before.length;
+      newCursorEnd = start + before.length + selectedText.length;
+    }
+
     onChange(newText);
 
+    // Keep scroll position and refocus cursor
     setTimeout(() => {
+      if (!textarea) return;
       textarea.focus();
-      textarea.setSelectionRange(start + before.length, start + before.length + selectedText.length);
-    }, 10);
+      textarea.setSelectionRange(newCursorStart, newCursorEnd);
+      textarea.scrollTop = savedScrollTop;
+    }, 0);
   };
 
   const handleInsertTableMarkdown = (mdTable: string) => {
@@ -59,16 +95,24 @@ export default function MarkdownEditor({
 
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
+    const savedScrollTop = textarea.scrollTop;
     const currentText = textarea.value;
 
     const newText = currentText.substring(0, start) + mdTable + currentText.substring(end);
     onChange(newText);
 
     setTimeout(() => {
+      if (!textarea) return;
       textarea.focus();
       const newPos = start + mdTable.length;
       textarea.setSelectionRange(newPos, newPos);
-    }, 10);
+      textarea.scrollTop = savedScrollTop;
+    }, 0);
+  };
+
+  const handleToolbarButtonMouseDown = (e: React.MouseEvent) => {
+    // Prevent button click from stealing focus from textarea
+    e.preventDefault();
   };
 
   return (
@@ -79,6 +123,7 @@ export default function MarkdownEditor({
         <div className="flex items-center bg-muted/70 p-1 rounded-lg border border-border">
           <button
             type="button"
+            onMouseDown={handleToolbarButtonMouseDown}
             onClick={() => setActiveTab('write')}
             className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold transition-colors ${
               activeTab === 'write'
@@ -91,6 +136,7 @@ export default function MarkdownEditor({
           </button>
           <button
             type="button"
+            onMouseDown={handleToolbarButtonMouseDown}
             onClick={() => setActiveTab('preview')}
             className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold transition-colors ${
               activeTab === 'preview'
@@ -108,6 +154,7 @@ export default function MarkdownEditor({
           <div className="flex flex-wrap items-center gap-0.5">
             <button
               type="button"
+              onMouseDown={handleToolbarButtonMouseDown}
               onClick={() => insertMarkdown('**', '**')}
               title="Teks Tebal (Bold)"
               className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
@@ -116,6 +163,7 @@ export default function MarkdownEditor({
             </button>
             <button
               type="button"
+              onMouseDown={handleToolbarButtonMouseDown}
               onClick={() => insertMarkdown('*', '*')}
               title="Teks Miring (Italic)"
               className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
@@ -124,6 +172,7 @@ export default function MarkdownEditor({
             </button>
             <button
               type="button"
+              onMouseDown={handleToolbarButtonMouseDown}
               onClick={() => insertMarkdown('## ')}
               title="Judul Sub-Bab (H2)"
               className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
@@ -133,6 +182,7 @@ export default function MarkdownEditor({
             <div className="h-4 w-px bg-border mx-1" />
             <button
               type="button"
+              onMouseDown={handleToolbarButtonMouseDown}
               onClick={() => insertMarkdown('- ')}
               title="Daftar Bullet"
               className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
@@ -141,6 +191,7 @@ export default function MarkdownEditor({
             </button>
             <button
               type="button"
+              onMouseDown={handleToolbarButtonMouseDown}
               onClick={() => insertMarkdown('1. ')}
               title="Daftar Angka"
               className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
@@ -149,6 +200,7 @@ export default function MarkdownEditor({
             </button>
             <button
               type="button"
+              onMouseDown={handleToolbarButtonMouseDown}
               onClick={() => insertMarkdown('> ')}
               title="Kutipan (Quote)"
               className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
@@ -157,6 +209,7 @@ export default function MarkdownEditor({
             </button>
             <button
               type="button"
+              onMouseDown={handleToolbarButtonMouseDown}
               onClick={() => insertMarkdown('`', '`')}
               title="Format Kode"
               className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
@@ -166,6 +219,7 @@ export default function MarkdownEditor({
             <div className="h-4 w-px bg-border mx-1" />
             <button
               type="button"
+              onMouseDown={handleToolbarButtonMouseDown}
               onClick={() => insertMarkdown('[Teks Link](', ')')}
               title="Sisipkan Tautan (Link)"
               className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
@@ -174,6 +228,7 @@ export default function MarkdownEditor({
             </button>
             <button
               type="button"
+              onMouseDown={handleToolbarButtonMouseDown}
               onClick={() => insertMarkdown('![Deskripsi Gambar](', ')')}
               title="Sisipkan Gambar"
               className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
@@ -184,6 +239,7 @@ export default function MarkdownEditor({
             {/* TABLE BUILDER BUTTON */}
             <button
               type="button"
+              onMouseDown={handleToolbarButtonMouseDown}
               onClick={() => setIsTableModalOpen(true)}
               title="Buat / Sisipkan Tabel"
               className="flex items-center gap-1.5 px-2 py-1 text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 hover:bg-indigo-500/20 rounded-lg transition-colors ml-1"
