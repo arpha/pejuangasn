@@ -1,4 +1,5 @@
 import React from 'react';
+import katex from 'katex';
 
 interface MarkdownRendererProps {
   text: string;
@@ -23,11 +24,51 @@ export default function MarkdownRenderer({ text, className = '' }: MarkdownRende
   let currentListStartNum = 1;
 
   const renderInline = (content: string): React.ReactNode[] => {
-    // Parse bold, italic, links, images, code
-    const tokenRegex = /(\!\[.*?\]\(.*?\)|\[.*?\]\(.*?\)|`.*?`|\*\*.*?\*\*|\*.*?\*)/g;
+    // Parse math $$...$$ and $...$, image ![alt](url), link [text](url), inline code `code`, bold **text**, italic *text*
+    const tokenRegex = /(\$\$[\s\S]+?\$\$|\$[\s\S]+?\$|\!\[.*?\]\(.*?\)|\[.*?\]\(.*?\)|`.*?`|\*\*.*?\*\*|\*.*?\*)/g;
     const tokens = content.split(tokenRegex);
     
     return tokens.map((token, index) => {
+      // Math Display: $$...$$
+      if (token.startsWith('$$') && token.endsWith('$$')) {
+        const rawMath = token.slice(2, -2);
+        try {
+          const html = katex.renderToString(rawMath, {
+            displayMode: true,
+            throwOnError: false,
+          });
+          return (
+            <span
+              key={index}
+              className="block my-2 overflow-x-auto"
+              dangerouslySetInnerHTML={{ __html: html }}
+            />
+          );
+        } catch {
+          return <code key={index}>{token}</code>;
+        }
+      }
+
+      // Math Inline: $...$
+      if (token.startsWith('$') && token.endsWith('$') && token.length > 2) {
+        const rawMath = token.slice(1, -1);
+        try {
+          const html = katex.renderToString(rawMath, {
+            displayMode: false,
+            throwOnError: false,
+          });
+          return (
+            <span
+              key={index}
+              className="inline-block px-0.5"
+              dangerouslySetInnerHTML={{ __html: html }}
+            />
+          );
+        } catch {
+          return <code key={index}>{token}</code>;
+        }
+      }
+
       // Image: ![alt](url)
       if (token.startsWith('![') && token.includes('](')) {
         const alt = token.slice(2, token.indexOf(']'));
@@ -54,7 +95,7 @@ export default function MarkdownRenderer({ text, className = '' }: MarkdownRende
             rel="noopener noreferrer" 
             className="text-indigo-600 dark:text-indigo-400 hover:underline font-bold"
           >
-            {linkText}
+            {renderInline(linkText)}
           </a>
         );
       }
@@ -72,16 +113,25 @@ export default function MarkdownRenderer({ text, className = '' }: MarkdownRende
       // Bold: **text**
       if (token.startsWith('**') && token.endsWith('**')) {
         const boldText = token.slice(2, -2);
-        return <strong key={index} className="font-extrabold text-foreground">{boldText}</strong>;
+        return <strong key={index} className="font-extrabold text-foreground">{renderInline(boldText)}</strong>;
       }
       
       // Italic: *text*
       if (token.startsWith('*') && token.endsWith('*')) {
         const italicText = token.slice(1, -1);
-        return <em key={index} className="italic text-muted-foreground">{italicText}</em>;
+        return <em key={index} className="italic text-muted-foreground">{renderInline(italicText)}</em>;
       }
       
-      return token;
+      // Auto replace unescaped LaTeX arrow symbols or shortcuts
+      const formattedText = token
+        .replace(/\\rightarrow/g, '→')
+        .replace(/\\leftarrow/g, '←')
+        .replace(/\\Rightarrow/g, '⇒')
+        .replace(/\\Leftarrow/g, '⇐')
+        .replace(/\\leftrightarrow/g, '↔')
+        .replace(/\\to/g, '→');
+
+      return formattedText;
     });
   };
 
