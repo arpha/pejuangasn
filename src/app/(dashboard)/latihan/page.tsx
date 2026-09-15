@@ -101,9 +101,10 @@ export default function LatihanSoalPage() {
         }
       }
 
-      // Enforce FREE questions limit for non-premium users
+      // Enforce FREE questions limit & EASY difficulty for non-premium users
       if (!profile || profile.subscription_status !== 'PREMIUM') {
         query = query.eq('type', 'FREE');
+        query = query.eq('difficulty', 'MUDAH');
       }
 
       const { data, error } = await query.limit(150);
@@ -512,7 +513,7 @@ export default function LatihanSoalPage() {
                         Akses Latihan Terbatas (Akun Free)
                       </p>
                       <p className="leading-relaxed font-medium">
-                        Anda saat ini hanya dapat berlatih menggunakan soal-soal **Free**. Aktifkan status **Premium** melalui dashboard untuk membuka ribuan bank soal berkualitas tinggi lainnya.
+                        Pada akun **Free**, Anda hanya dapat mengakses soal-soal latihan bertipe **Free** dengan tingkat kesulitan **MUDAH**. Aktifkan status **Premium** melalui dashboard untuk membuka seluruh tingkat kesulitan (Sedang & Sulit) serta bank soal eksklusif.
                       </p>
                     </div>
                   </div>
@@ -635,16 +636,30 @@ export default function LatihanSoalPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">3. Tingkat Kesulitan</Label>
+                    <div className="flex justify-between items-center">
+                      <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">3. Tingkat Kesulitan</Label>
+                      {profile?.subscription_status !== 'PREMIUM' && (
+                        <span className="text-[9px] font-extrabold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
+                          Free: Khusus MUDAH 🔒
+                        </span>
+                      )}
+                    </div>
                     <select 
-                      value={drillDifficulty}
+                      value={profile?.subscription_status !== 'PREMIUM' ? 'MUDAH' : drillDifficulty}
                       onChange={(e) => setDrillDifficulty(e.target.value as any)}
-                      className="w-full h-11 rounded-xl border border-border bg-card px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-indigo-500 text-foreground cursor-pointer font-bold"
+                      disabled={profile?.subscription_status !== 'PREMIUM'}
+                      className="w-full h-11 rounded-xl border border-border bg-card px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-indigo-500 text-foreground cursor-pointer font-bold disabled:opacity-75 disabled:cursor-not-allowed"
                     >
-                      <option value="ALL">Semua Kesulitan</option>
-                      <option value="MUDAH">MUDAH</option>
-                      <option value="SEDANG">SEDANG</option>
-                      <option value="SULIT">SULIT</option>
+                      {profile?.subscription_status !== 'PREMIUM' ? (
+                        <option value="MUDAH">MUDAH (Khusus Akun Free)</option>
+                      ) : (
+                        <>
+                          <option value="ALL">Semua Kesulitan</option>
+                          <option value="MUDAH">MUDAH</option>
+                          <option value="SEDANG">SEDANG</option>
+                          <option value="SULIT">SULIT</option>
+                        </>
+                      )}
                     </select>
                   </div>
 
