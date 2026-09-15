@@ -318,17 +318,9 @@ export default function DashboardPage() {
             </div>
             <div>
               <p className="text-xs font-semibold text-muted-foreground uppercase">Materi Selesai</p>
-              {isPremium ? (
-                <h3 className="text-2xl font-black text-foreground mt-1">
-                  {completedMaterialsCount} / {totalMaterials} ({overallMaterialPercent}%)
-                </h3>
-              ) : (
-                <div className="flex items-center gap-1.5 mt-1">
-                  <span className="text-base font-extrabold text-amber-600 dark:text-amber-400 flex items-center gap-1">
-                    <Lock className="h-4 w-4" /> Khusus Premium
-                  </span>
-                </div>
-              )}
+              <h3 className="text-2xl font-black text-foreground mt-1">
+                {completedMaterialsCount} / {totalMaterials} ({overallMaterialPercent}%)
+              </h3>
             </div>
           </CardContent>
         </Card>

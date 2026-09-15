@@ -52,6 +52,7 @@ export default function MaterialsPage() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const searchParams = useSearchParams();
   const { profile } = useAuthStore();
+  const isPremium = profile?.subscription_status === 'PREMIUM';
 
   useEffect(() => {
     const categoryParam = searchParams.get('category');
@@ -169,7 +170,9 @@ export default function MaterialsPage() {
       {/* Reading Progress Tracker Board */}
       {profile?.id && materials.length > 0 && (
         <Card className="bg-gradient-to-r from-indigo-500/[0.04] via-indigo-500/[0.01] to-transparent border border-border shadow-sm rounded-2xl overflow-hidden">
-          <CardContent className="p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-5">
+          <CardContent className={`p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-5 transition-all duration-300 ${
+            !isPremium ? 'filter blur-[7px] select-none pointer-events-none opacity-40 grayscale-[20%]' : ''
+          }`}>
             <div className="space-y-1.5">
               <h4 className="text-sm font-extrabold text-foreground flex items-center gap-2">
                 <BookMarked className="h-4.5 w-4.5 text-indigo-600 dark:text-indigo-400" />
