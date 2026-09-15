@@ -5,6 +5,11 @@ interface MarkdownRendererProps {
   className?: string;
 }
 
+interface NumberedListItem {
+  text: string;
+  subBullets: string[];
+}
+
 export default function MarkdownRenderer({ text, className = '' }: MarkdownRendererProps) {
   if (!text) return null;
 
@@ -14,6 +19,8 @@ export default function MarkdownRenderer({ text, className = '' }: MarkdownRende
   
   let currentBlockType: 'paragraph' | 'list-bullet' | 'list-number' | 'table' | 'blockquote' | null = null;
   let currentBlockLines: string[] = [];
+  let currentNumberedItems: NumberedListItem[] = [];
+  let currentListStartNum = 1;
 
   const renderInline = (content: string): React.ReactNode[] => {
     // Parse bold, italic, links, images, code
@@ -79,6 +86,34 @@ export default function MarkdownRenderer({ text, className = '' }: MarkdownRende
   };
 
   const flushBlock = (key: number) => {
+    if (currentBlockType === 'list-number') {
+      if (currentNumberedItems.length > 0) {
+        blocks.push(
+          <ol key={key} start={currentListStartNum} className="list-decimal pl-6 my-3 space-y-2 text-muted-foreground text-sm md:text-base">
+            {currentNumberedItems.map((item, idx) => (
+              <li key={idx} className="leading-relaxed">
+                <span>{renderInline(item.text)}</span>
+                {item.subBullets.length > 0 && (
+                  <ul className="list-disc pl-5 mt-1.5 space-y-1 text-muted-foreground">
+                    {item.subBullets.map((sub, sIdx) => (
+                      <li key={sIdx} className="leading-relaxed">
+                        {renderInline(sub)}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            ))}
+          </ol>
+        );
+      }
+      currentNumberedItems = [];
+      currentListStartNum = 1;
+      currentBlockLines = [];
+      currentBlockType = null;
+      return;
+    }
+
     if (currentBlockLines.length === 0) return;
 
     if (currentBlockType === 'paragraph') {
@@ -97,16 +132,6 @@ export default function MarkdownRenderer({ text, className = '' }: MarkdownRende
           ))}
         </ul>
       );
-    } else if (currentBlockType === 'list-number') {
-      blocks.push(
-        <ol key={key} className="list-decimal list-inside pl-4 my-3 space-y-1.5 text-muted-foreground text-sm md:text-base">
-          {currentBlockLines.map((line, idx) => (
-            <li key={idx} className="leading-relaxed">
-              {renderInline(line.replace(/^\d+\.\s*/, ''))}
-            </li>
-          ))}
-        </ol>
-      );
     } else if (currentBlockType === 'blockquote') {
       blocks.push(
         <blockquote key={key} className="border-l-4 border-indigo-600 bg-indigo-500/[0.03] px-5 py-3 my-4 rounded-r-xl italic text-muted-foreground text-sm md:text-base leading-relaxed border-border">
@@ -114,9 +139,12 @@ export default function MarkdownRenderer({ text, className = '' }: MarkdownRende
         </blockquote>
       );
     } else if (currentBlockType === 'table') {
-      const rawRows = currentBlockLines.map(line => 
-        line.split('|').map(cell => cell.trim()).filter((_, idx, arr) => idx > 0 && idx < arr.length - 1)
-      );
+      const rawRows = currentBlockLines.map(line => {
+        let parts = line.split('|').map(cell => cell.trim());
+        if (parts[0] === '') parts.shift();
+        if (parts[parts.length - 1] === '') parts.pop();
+        return parts;
+      });
 
       const tableRows = rawRows.filter(row => !row.every(cell => cell.startsWith('---') || cell === ''));
       
@@ -215,7 +243,7 @@ export default function MarkdownRenderer({ text, className = '' }: MarkdownRende
     }
 
     // Check for Table Row
-    if (trimmed.startsWith('|') && trimmed.endsWith('|')) {
+    if (trimmed.startsWith('|') && (trimmed.endsWith('|') || trimmed.includes('|'))) {
       if (currentBlockType !== 'table') {
         flushBlock(blockKey++);
         currentBlockType = 'table';
@@ -228,19 +256,35 @@ export default function MarkdownRenderer({ text, className = '' }: MarkdownRende
     const isBullet = trimmed.startsWith('* ') || trimmed.startsWith('- ');
     const isNumber = /^\d+\.\s+/.test(trimmed);
 
-    if (isBullet) {
-      if (currentBlockType !== 'list-bullet') {
-        flushBlock(blockKey++);
-        currentBlockType = 'list-bullet';
-      }
-      currentBlockLines.push(trimmed);
-      continue;
-    }
-
     if (isNumber) {
+      const match = trimmed.match(/^(\d+)\.\s*(.*)/);
+      const numVal = match ? parseInt(match[1]) : 1;
+      const itemText = match ? match[2] : trimmed;
+
       if (currentBlockType !== 'list-number') {
         flushBlock(blockKey++);
         currentBlockType = 'list-number';
+        currentListStartNum = numVal;
+      }
+
+      currentNumberedItems.push({
+        text: itemText,
+        subBullets: []
+      });
+      continue;
+    }
+
+    if (isBullet) {
+      const bulletText = trimmed.replace(/^(\*\s*|-\s*)/, '');
+      // If inside a numbered list item, nest the bullet under current numbered item
+      if (currentBlockType === 'list-number' && currentNumberedItems.length > 0) {
+        currentNumberedItems[currentNumberedItems.length - 1].subBullets.push(bulletText);
+        continue;
+      }
+
+      if (currentBlockType !== 'list-bullet') {
+        flushBlock(blockKey++);
+        currentBlockType = 'list-bullet';
       }
       currentBlockLines.push(trimmed);
       continue;
