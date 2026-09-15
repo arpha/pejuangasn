@@ -20,7 +20,8 @@ import {
   Flag,
   Brain,
   HeartHandshake,
-  ArrowRight
+  ArrowRight,
+  Lock
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -32,6 +33,7 @@ import { ExamAttempt, Material, UserMaterialProgress } from '@/types';
 
 export default function DashboardPage() {
   const { profile, setProfile } = useAuthStore();
+  const isPremium = profile?.subscription_status === 'PREMIUM';
 
   // Fetch attempt history
   const { data: attempts = [], isLoading } = useQuery<ExamAttempt[]>({
@@ -316,9 +318,17 @@ export default function DashboardPage() {
             </div>
             <div>
               <p className="text-xs font-semibold text-muted-foreground uppercase">Materi Selesai</p>
-              <h3 className="text-2xl font-black text-foreground mt-1">
-                {completedMaterialsCount} / {totalMaterials} ({overallMaterialPercent}%)
-              </h3>
+              {isPremium ? (
+                <h3 className="text-2xl font-black text-foreground mt-1">
+                  {completedMaterialsCount} / {totalMaterials} ({overallMaterialPercent}%)
+                </h3>
+              ) : (
+                <div className="flex items-center gap-1.5 mt-1">
+                  <span className="text-base font-extrabold text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                    <Lock className="h-4 w-4" /> Khusus Premium
+                  </span>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -329,15 +339,22 @@ export default function DashboardPage() {
         <div className="lg:col-span-2 space-y-6">
 
           {/* Progress Materi Belajar Card */}
-          <Card className="bg-card border-border shadow-sm overflow-hidden">
+          <Card className="bg-card border-border shadow-sm overflow-hidden relative">
             <CardHeader className="pb-3 border-b border-border/60 bg-muted/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="space-y-1">
-                <CardTitle className="text-base font-bold text-foreground flex items-center gap-2.5">
+                <div className="flex items-center gap-2.5 flex-wrap">
                   <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
                     <BookOpen className="h-5 w-5" />
                   </div>
-                  Progress Materi Belajar SKD
-                </CardTitle>
+                  <CardTitle className="text-base font-bold text-foreground">
+                    Progress Materi Belajar SKD
+                  </CardTitle>
+                  {!isPremium && (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                      <Lock className="h-3 w-3" /> Fitur Premium
+                    </span>
+                  )}
+                </div>
                 <CardDescription>
                   Pantau ketuntasan modul pembelajaran dan kuis evaluasi TWK, TIU, dan TKP.
                 </CardDescription>
@@ -348,77 +365,109 @@ export default function DashboardPage() {
                 </Button>
               </Link>
             </CardHeader>
-            <CardContent className="p-6 space-y-6">
-              {/* Overall Progress Bar */}
-              <div className="p-4 rounded-2xl bg-muted/30 border border-border/80 space-y-3">
-                <div className="flex justify-between items-center text-xs sm:text-sm font-bold">
-                  <span className="text-foreground">Total Ketuntasan Seluruh Materi</span>
-                  <span className="text-indigo-600 dark:text-indigo-400 font-extrabold text-sm sm:text-base">
-                    {completedMaterialsCount} / {totalMaterials} Modul ({overallMaterialPercent}%)
-                  </span>
-                </div>
-                <div className="h-3 bg-muted rounded-full overflow-hidden p-0.5 border border-border/40">
-                  <div 
-                    className="h-full bg-gradient-to-r from-indigo-600 via-indigo-500 to-emerald-500 rounded-full transition-all duration-700 shadow-sm"
-                    style={{ width: `${overallMaterialPercent}%` }}
-                  />
-                </div>
-              </div>
 
-              {/* Category Breakdown (TWK, TIU, TKP) */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {/* TWK Progress */}
-                <div className="p-4 rounded-xl border border-rose-500/20 bg-rose-500/[0.03] space-y-2">
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="font-extrabold text-rose-600 dark:text-rose-400 uppercase tracking-wider flex items-center gap-1">
-                      <Flag className="h-3.5 w-3.5" /> TWK
+            <div className="relative">
+              {/* Card Content - Blurred if Free Account */}
+              <CardContent className={`p-6 space-y-6 transition-all duration-300 ${
+                !isPremium ? 'filter blur-[7px] select-none pointer-events-none opacity-40 grayscale-[20%]' : ''
+              }`}>
+                {/* Overall Progress Bar */}
+                <div className="p-4 rounded-2xl bg-muted/30 border border-border/80 space-y-3">
+                  <div className="flex justify-between items-center text-xs sm:text-sm font-bold">
+                    <span className="text-foreground">Total Ketuntasan Seluruh Materi</span>
+                    <span className="text-indigo-600 dark:text-indigo-400 font-extrabold text-sm sm:text-base">
+                      {isPremium ? `${completedMaterialsCount} / ${totalMaterials} Modul (${overallMaterialPercent}%)` : '18 / 30 Modul (60%)'}
                     </span>
-                    <span className="font-bold text-foreground">{twkCompleted}/{twkMaterials.length} ({twkPercent}%)</span>
                   </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                  <div className="h-3 bg-muted rounded-full overflow-hidden p-0.5 border border-border/40">
                     <div 
-                      className="h-full bg-rose-500 rounded-full transition-all duration-500" 
-                      style={{ width: `${twkPercent}%` }} 
+                      className="h-full bg-gradient-to-r from-indigo-600 via-indigo-500 to-emerald-500 rounded-full transition-all duration-700 shadow-sm"
+                      style={{ width: isPremium ? `${overallMaterialPercent}%` : '60%' }}
                     />
                   </div>
-                  <p className="text-[11px] text-muted-foreground">Wawasan Kebangsaan</p>
                 </div>
 
-                {/* TIU Progress */}
-                <div className="p-4 rounded-xl border border-indigo-500/20 bg-indigo-500/[0.03] space-y-2">
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="font-extrabold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider flex items-center gap-1">
-                      <Brain className="h-3.5 w-3.5" /> TIU
-                    </span>
-                    <span className="font-bold text-foreground">{tiuCompleted}/{tiuMaterials.length} ({tiuPercent}%)</span>
+                {/* Category Breakdown (TWK, TIU, TKP) */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {/* TWK Progress */}
+                  <div className="p-4 rounded-xl border border-rose-500/20 bg-rose-500/[0.03] space-y-2">
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="font-extrabold text-rose-600 dark:text-rose-400 uppercase tracking-wider flex items-center gap-1">
+                        <Flag className="h-3.5 w-3.5" /> TWK
+                      </span>
+                      <span className="font-bold text-foreground">{isPremium ? `${twkCompleted}/${twkMaterials.length} (${twkPercent}%)` : '6/10 (60%)'}</span>
+                    </div>
+                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-rose-500 rounded-full transition-all duration-500" 
+                        style={{ width: isPremium ? `${twkPercent}%` : '60%' }} 
+                      />
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">Wawasan Kebangsaan</p>
                   </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-indigo-500 rounded-full transition-all duration-500" 
-                      style={{ width: `${tiuPercent}%` }} 
-                    />
-                  </div>
-                  <p className="text-[11px] text-muted-foreground">Inteligensia Umum</p>
-                </div>
 
-                {/* TKP Progress */}
-                <div className="p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/[0.03] space-y-2">
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="font-extrabold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-1">
-                      <HeartHandshake className="h-3.5 w-3.5" /> TKP
-                    </span>
-                    <span className="font-bold text-foreground">{tkpCompleted}/{tkpMaterials.length} ({tkpPercent}%)</span>
+                  {/* TIU Progress */}
+                  <div className="p-4 rounded-xl border border-indigo-500/20 bg-indigo-500/[0.03] space-y-2">
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="font-extrabold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider flex items-center gap-1">
+                        <Brain className="h-3.5 w-3.5" /> TIU
+                      </span>
+                      <span className="font-bold text-foreground">{isPremium ? `${tiuCompleted}/${tiuMaterials.length} (${tiuPercent}%)` : '7/10 (70%)'}</span>
+                    </div>
+                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-indigo-500 rounded-full transition-all duration-500" 
+                        style={{ width: isPremium ? `${tiuPercent}%` : '70%' }} 
+                      />
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">Inteligensia Umum</p>
                   </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-emerald-500 rounded-full transition-all duration-500" 
-                      style={{ width: `${tkpPercent}%` }} 
-                    />
+
+                  {/* TKP Progress */}
+                  <div className="p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/[0.03] space-y-2">
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="font-extrabold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-1">
+                        <HeartHandshake className="h-3.5 w-3.5" /> TKP
+                      </span>
+                      <span className="font-bold text-foreground">{isPremium ? `${tkpCompleted}/${tkpMaterials.length} (${tkpPercent}%)` : '5/10 (50%)'}</span>
+                    </div>
+                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-emerald-500 rounded-full transition-all duration-500" 
+                        style={{ width: isPremium ? `${tkpPercent}%` : '50%' }} 
+                      />
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">Karakteristik Pribadi</p>
                   </div>
-                  <p className="text-[11px] text-muted-foreground">Karakteristik Pribadi</p>
                 </div>
-              </div>
-            </CardContent>
+              </CardContent>
+
+              {/* Locked Overlay for Free Accounts */}
+              {!isPremium && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center p-6 bg-background/50 backdrop-blur-[2px] z-10 text-center animate-in fade-in duration-300">
+                  <div className="max-w-md mx-auto space-y-3 p-6 rounded-2xl bg-card/95 border border-amber-500/30 shadow-2xl backdrop-blur-md">
+                    <div className="mx-auto w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-500 shadow-inner">
+                      <Lock className="h-6 w-6" />
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="text-base font-black text-foreground">
+                        Progress Belajar Khusus Akun Premium
+                      </h4>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        Fitur pelacakan ketuntasan materi SKD dan evaluasi nilai kuis per kategori hanya dapat diakses oleh member <strong>Premium</strong>.
+                      </p>
+                    </div>
+                    <div className="pt-2">
+                      <Link href="/profil">
+                        <Button className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs h-10 px-6 rounded-xl shadow-md gap-2 transition-all">
+                          <Crown className="h-4 w-4" /> Buka Akses Premium Sekarang
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </Card>
 
           {/* Card Grid: Analisis Performa & Tren SVG */}
