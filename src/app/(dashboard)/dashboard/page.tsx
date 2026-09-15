@@ -418,67 +418,6 @@ export default function DashboardPage() {
                   <p className="text-[11px] text-muted-foreground">Karakteristik Pribadi</p>
                 </div>
               </div>
-
-              {/* Module List with Status */}
-              {materials.length > 0 && (
-                <div className="space-y-3 pt-1">
-                  <div className="flex justify-between items-center">
-                    <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                      Modul Pembelajaran Pilihan
-                    </h4>
-                    <Link href="/materi" className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline">
-                      Lihat Semua &rarr;
-                    </Link>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {materials.slice(0, 4).map((mat) => {
-                      const isCompleted = completedMaterialIds.has(mat.id);
-                      const progress = materialProgress.find(p => p.material_id === mat.id);
-                      const badgeClass = mat.category === 'TWK' 
-                        ? 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30'
-                        : mat.category === 'TIU'
-                        ? 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border-indigo-500/30'
-                        : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30';
-
-                      return (
-                        <div 
-                          key={mat.id}
-                          className="p-3.5 rounded-xl border border-border bg-card hover:bg-muted/30 transition-all flex flex-col justify-between gap-3 shadow-sm"
-                        >
-                          <div className="space-y-1.5 min-w-0">
-                            <div className="flex items-center justify-between gap-2">
-                              <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold border ${badgeClass}`}>
-                                {mat.category}
-                              </span>
-                              {isCompleted ? (
-                                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                                  <CheckCircle2 className="h-3 w-3" /> Selesai
-                                </span>
-                              ) : (
-                                <span className="text-[10px] font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full border border-border">
-                                  Belum Selesai
-                                </span>
-                              )}
-                            </div>
-                            <h5 className="font-bold text-sm text-foreground truncate">{mat.title}</h5>
-                            {progress?.quiz_completed && (
-                              <p className="text-[11px] text-muted-foreground">
-                                Skor Kuis: <strong className="text-indigo-600 dark:text-indigo-400">{progress.quiz_score}/100</strong>
-                              </p>
-                            )}
-                          </div>
-                          <Link href={`/materi/${mat.slug}`}>
-                            <Button size="sm" variant="ghost" className="w-full justify-between text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/10 h-8 px-2">
-                              <span>{isCompleted ? 'Pelajari Ulang' : 'Mulai Belajar'}</span>
-                              <ChevronRight className="h-3.5 w-3.5" />
-                            </Button>
-                          </Link>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
             </CardContent>
           </Card>
 
