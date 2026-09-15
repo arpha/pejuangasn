@@ -15,8 +15,12 @@ import {
   Timer,
   Sliders,
   Check,
-  ChevronLeft
+  ChevronLeft,
+  Crown,
+  Sparkles,
+  ArrowRight
 } from 'lucide-react';
+import Link from 'next/link';
 import { toast } from 'sonner';
 
 import { useSearchParams } from 'next/navigation';
@@ -506,16 +510,25 @@ export default function LatihanSoalPage() {
               <CardContent className="space-y-6 p-6">
                 
                 {profile?.subscription_status !== 'PREMIUM' && (
-                  <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex gap-3 text-xs text-amber-800 dark:text-amber-300 items-start">
-                    <span className="shrink-0 text-sm">🔒</span>
-                    <div className="space-y-1">
-                      <p className="font-extrabold uppercase tracking-wider text-[10px] text-amber-600 dark:text-amber-400">
-                        Akses Latihan Terbatas (Akun Free)
-                      </p>
-                      <p className="leading-relaxed font-medium">
-                        Pada akun **Free**, Anda hanya dapat mengakses soal-soal latihan bertipe **Free** dengan tingkat kesulitan **MUDAH**. Aktifkan status **Premium** melalui dashboard untuk membuka seluruh tingkat kesulitan (Sedang & Sulit) serta bank soal eksklusif.
-                      </p>
+                  <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-xs text-amber-800 dark:text-amber-300">
+                    <div className="flex items-start gap-3 flex-1">
+                      <div className="p-2.5 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400 shrink-0">
+                        <Crown className="h-5 w-5" />
+                      </div>
+                      <div className="space-y-1">
+                        <p className="font-extrabold uppercase tracking-wider text-[10px] text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+                          Akses Latihan Terbatas (Akun Free)
+                        </p>
+                        <p className="leading-relaxed font-medium">
+                          Pada akun <strong>Free</strong>, Anda hanya dapat mengakses soal-soal latihan bertipe <strong>Free</strong> dengan tingkat kesulitan <strong>MUDAH</strong>. Upgrade ke status <strong>Premium</strong> untuk membuka seluruh tingkat kesulitan (Sedang & Sulit) serta bank soal eksklusif.
+                        </p>
+                      </div>
                     </div>
+                    <Link href="/profil" className="w-full md:w-auto shrink-0">
+                      <Button className="w-full md:w-auto bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold h-10 px-5 rounded-xl shadow-sm text-xs flex items-center justify-center gap-1.5 transition-all">
+                        <Sparkles className="h-4 w-4" /> Lihat Paket & Keanggotaan <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    </Link>
                   </div>
                 )}
 
