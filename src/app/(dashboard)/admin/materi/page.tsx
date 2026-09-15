@@ -378,7 +378,13 @@ export default function AdminMaterialsPage() {
                   onClick={() => setCategoryFilter(cat)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                     categoryFilter === cat
-                      ? 'bg-card text-foreground shadow-sm'
+                      ? cat === 'TWK'
+                        ? 'bg-rose-600 text-white shadow-sm'
+                        : cat === 'TIU'
+                        ? 'bg-indigo-600 text-white shadow-sm'
+                        : cat === 'TKP'
+                        ? 'bg-emerald-600 text-white shadow-sm'
+                        : 'bg-card text-foreground shadow-sm'
                       : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
@@ -406,7 +412,13 @@ export default function AdminMaterialsPage() {
                     {/* Left: Info */}
                     <div className="space-y-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="inline-flex px-2 py-0.5 rounded text-[10px] font-extrabold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
+                        <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-extrabold border ${
+                          mat.category === 'TWK'
+                            ? 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30'
+                            : mat.category === 'TIU'
+                            ? 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border-indigo-500/30'
+                            : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30'
+                        }`}>
                           {mat.category}
                         </span>
                         <span className="text-[11px] text-muted-foreground font-mono truncate">

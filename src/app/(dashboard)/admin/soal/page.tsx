@@ -1310,7 +1310,13 @@ export default function AdminQuestionsPage() {
                     {/* Left side info */}
                     <div className="space-y-3 min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="inline-flex px-2 py-0.5 rounded text-[10px] font-extrabold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
+                        <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-extrabold border ${
+                          q.category === 'TWK'
+                            ? 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30'
+                            : q.category === 'TIU'
+                            ? 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border-indigo-500/30'
+                            : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30'
+                        }`}>
                           {q.category}
                         </span>
                         {q.sub_category && (
