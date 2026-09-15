@@ -10,12 +10,17 @@ import {
   Crown, 
   ExternalLink, 
   TrendingUp, 
-  User,
-  Phone,
-  BookOpen,
-  BarChart2,
-  Sparkles,
-  ChevronRight
+  User, 
+  Phone, 
+  BookOpen, 
+  BarChart2, 
+  Sparkles, 
+  ChevronRight,
+  BookMarked,
+  Flag,
+  Brain,
+  HeartHandshake,
+  ArrowRight
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -23,7 +28,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ExamAttempt } from '@/types';
+import { ExamAttempt, Material, UserMaterialProgress } from '@/types';
 
 export default function DashboardPage() {
   const { profile, setProfile } = useAuthStore();
@@ -40,6 +45,39 @@ export default function DashboardPage() {
         .order('started_at', { ascending: false });
       if (error) throw error;
       return data || [];
+    },
+    enabled: !!profile?.id,
+  });
+
+  // Fetch learning materials
+  const { data: materials = [] } = useQuery<Material[]>({
+    queryKey: ['materials'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('materials')
+        .select('*')
+        .order('category', { ascending: true });
+      if (error) throw error;
+      return (data || []) as Material[];
+    },
+  });
+
+  // Fetch user material progress
+  const { data: materialProgress = [] } = useQuery<UserMaterialProgress[]>({
+    queryKey: ['user-material-progress', profile?.id],
+    queryFn: async () => {
+      if (!profile?.id) return [];
+      try {
+        const { data, error } = await supabase
+          .from('user_material_progress')
+          .select('*')
+          .eq('user_id', profile.id);
+        if (error) throw error;
+        return (data || []) as UserMaterialProgress[];
+      } catch (err) {
+        console.error('Error fetching progress:', err);
+        return [];
+      }
     },
     enabled: !!profile?.id,
   });
@@ -118,6 +156,28 @@ export default function DashboardPage() {
   const passTwk = 65;
   const passTiu = 80;
   const passTkp = 166;
+
+  // Materials progress calculations
+  const totalMaterials = materials.length;
+  const completedMaterialIds = useMemo(() => {
+    return new Set(materialProgress.filter((p) => p.is_completed).map((p) => p.material_id));
+  }, [materialProgress]);
+
+  const completedMaterialsCount = completedMaterialIds.size;
+  const overallMaterialPercent = totalMaterials > 0 ? Math.round((completedMaterialsCount / totalMaterials) * 100) : 0;
+
+  // Category breakdown
+  const twkMaterials = materials.filter((m) => m.category === 'TWK');
+  const tiuMaterials = materials.filter((m) => m.category === 'TIU');
+  const tkpMaterials = materials.filter((m) => m.category === 'TKP');
+
+  const twkCompleted = twkMaterials.filter((m) => completedMaterialIds.has(m.id)).length;
+  const tiuCompleted = tiuMaterials.filter((m) => completedMaterialIds.has(m.id)).length;
+  const tkpCompleted = tkpMaterials.filter((m) => completedMaterialIds.has(m.id)).length;
+
+  const twkPercent = twkMaterials.length > 0 ? Math.round((twkCompleted / twkMaterials.length) * 100) : 0;
+  const tiuPercent = tiuMaterials.length > 0 ? Math.round((tiuCompleted / tiuMaterials.length) * 100) : 0;
+  const tkpPercent = tkpMaterials.length > 0 ? Math.round((tkpCompleted / tkpMaterials.length) * 100) : 0;
 
   // Find lowest category relative to passing grade
   let lowestCategory: 'TWK' | 'TIU' | 'TKP' = 'TWK';
@@ -252,12 +312,12 @@ export default function DashboardPage() {
         <Card className="bg-card border-border shadow-sm">
           <CardContent className="pt-6 flex items-center gap-4">
             <div className="bg-amber-500/10 dark:bg-amber-500/20 p-3 rounded-xl text-amber-600 dark:text-amber-400">
-              <Clock className="h-6 w-6" />
+              <BookOpen className="h-6 w-6" />
             </div>
             <div>
-              <p className="text-xs font-semibold text-muted-foreground uppercase">Waktu Belajar</p>
+              <p className="text-xs font-semibold text-muted-foreground uppercase">Materi Selesai</p>
               <h3 className="text-2xl font-black text-foreground mt-1">
-                {completedAttempts.length * 10} Menit
+                {completedMaterialsCount} / {totalMaterials} ({overallMaterialPercent}%)
               </h3>
             </div>
           </CardContent>
@@ -267,6 +327,160 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left Side: Tryout & Materi Quick Links */}
         <div className="lg:col-span-2 space-y-6">
+
+          {/* Progress Materi Belajar Card */}
+          <Card className="bg-card border-border shadow-sm overflow-hidden">
+            <CardHeader className="pb-3 border-b border-border/60 bg-muted/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="space-y-1">
+                <CardTitle className="text-base font-bold text-foreground flex items-center gap-2.5">
+                  <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+                    <BookOpen className="h-5 w-5" />
+                  </div>
+                  Progress Materi Belajar SKD
+                </CardTitle>
+                <CardDescription>
+                  Pantau ketuntasan modul pembelajaran dan kuis evaluasi TWK, TIU, dan TKP.
+                </CardDescription>
+              </div>
+              <Link href="/materi">
+                <Button variant="outline" size="sm" className="font-bold text-xs border-border gap-1.5 h-9">
+                  Buka Modul Belajar <ChevronRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </CardHeader>
+            <CardContent className="p-6 space-y-6">
+              {/* Overall Progress Bar */}
+              <div className="p-4 rounded-2xl bg-muted/30 border border-border/80 space-y-3">
+                <div className="flex justify-between items-center text-xs sm:text-sm font-bold">
+                  <span className="text-foreground">Total Ketuntasan Seluruh Materi</span>
+                  <span className="text-indigo-600 dark:text-indigo-400 font-extrabold text-sm sm:text-base">
+                    {completedMaterialsCount} / {totalMaterials} Modul ({overallMaterialPercent}%)
+                  </span>
+                </div>
+                <div className="h-3 bg-muted rounded-full overflow-hidden p-0.5 border border-border/40">
+                  <div 
+                    className="h-full bg-gradient-to-r from-indigo-600 via-indigo-500 to-emerald-500 rounded-full transition-all duration-700 shadow-sm"
+                    style={{ width: `${overallMaterialPercent}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Category Breakdown (TWK, TIU, TKP) */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {/* TWK Progress */}
+                <div className="p-4 rounded-xl border border-rose-500/20 bg-rose-500/[0.03] space-y-2">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="font-extrabold text-rose-600 dark:text-rose-400 uppercase tracking-wider flex items-center gap-1">
+                      <Flag className="h-3.5 w-3.5" /> TWK
+                    </span>
+                    <span className="font-bold text-foreground">{twkCompleted}/{twkMaterials.length} ({twkPercent}%)</span>
+                  </div>
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-rose-500 rounded-full transition-all duration-500" 
+                      style={{ width: `${twkPercent}%` }} 
+                    />
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">Wawasan Kebangsaan</p>
+                </div>
+
+                {/* TIU Progress */}
+                <div className="p-4 rounded-xl border border-indigo-500/20 bg-indigo-500/[0.03] space-y-2">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="font-extrabold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider flex items-center gap-1">
+                      <Brain className="h-3.5 w-3.5" /> TIU
+                    </span>
+                    <span className="font-bold text-foreground">{tiuCompleted}/{tiuMaterials.length} ({tiuPercent}%)</span>
+                  </div>
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-indigo-500 rounded-full transition-all duration-500" 
+                      style={{ width: `${tiuPercent}%` }} 
+                    />
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">Inteligensia Umum</p>
+                </div>
+
+                {/* TKP Progress */}
+                <div className="p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/[0.03] space-y-2">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="font-extrabold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-1">
+                      <HeartHandshake className="h-3.5 w-3.5" /> TKP
+                    </span>
+                    <span className="font-bold text-foreground">{tkpCompleted}/{tkpMaterials.length} ({tkpPercent}%)</span>
+                  </div>
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-emerald-500 rounded-full transition-all duration-500" 
+                      style={{ width: `${tkpPercent}%` }} 
+                    />
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">Karakteristik Pribadi</p>
+                </div>
+              </div>
+
+              {/* Module List with Status */}
+              {materials.length > 0 && (
+                <div className="space-y-3 pt-1">
+                  <div className="flex justify-between items-center">
+                    <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                      Modul Pembelajaran Pilihan
+                    </h4>
+                    <Link href="/materi" className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline">
+                      Lihat Semua &rarr;
+                    </Link>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {materials.slice(0, 4).map((mat) => {
+                      const isCompleted = completedMaterialIds.has(mat.id);
+                      const progress = materialProgress.find(p => p.material_id === mat.id);
+                      const badgeClass = mat.category === 'TWK' 
+                        ? 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30'
+                        : mat.category === 'TIU'
+                        ? 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border-indigo-500/30'
+                        : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30';
+
+                      return (
+                        <div 
+                          key={mat.id}
+                          className="p-3.5 rounded-xl border border-border bg-card hover:bg-muted/30 transition-all flex flex-col justify-between gap-3 shadow-sm"
+                        >
+                          <div className="space-y-1.5 min-w-0">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold border ${badgeClass}`}>
+                                {mat.category}
+                              </span>
+                              {isCompleted ? (
+                                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                                  <CheckCircle2 className="h-3 w-3" /> Selesai
+                                </span>
+                              ) : (
+                                <span className="text-[10px] font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full border border-border">
+                                  Belum Selesai
+                                </span>
+                              )}
+                            </div>
+                            <h5 className="font-bold text-sm text-foreground truncate">{mat.title}</h5>
+                            {progress?.quiz_completed && (
+                              <p className="text-[11px] text-muted-foreground">
+                                Skor Kuis: <strong className="text-indigo-600 dark:text-indigo-400">{progress.quiz_score}/100</strong>
+                              </p>
+                            )}
+                          </div>
+                          <Link href={`/materi/${mat.slug}`}>
+                            <Button size="sm" variant="ghost" className="w-full justify-between text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/10 h-8 px-2">
+                              <span>{isCompleted ? 'Pelajari Ulang' : 'Mulai Belajar'}</span>
+                              <ChevronRight className="h-3.5 w-3.5" />
+                            </Button>
+                          </Link>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
           {/* Card Grid: Analisis Performa & Tren SVG */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
