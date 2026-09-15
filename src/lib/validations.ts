@@ -20,7 +20,7 @@ export const registerSchema = z
     confirmPassword: z.string(),
     referralCode: z.string().optional(),
     agreeTerms: z.literal(true, {
-      errorMap: () => ({ message: 'Anda harus menyetujui Ketentuan Layanan & Kebijakan Privasi' }),
+      message: 'Anda harus menyetujui Ketentuan Layanan & Kebijakan Privasi',
     }),
   })
   .refine((data) => data.password === data.confirmPassword, {

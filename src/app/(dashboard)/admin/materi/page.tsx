@@ -23,6 +23,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import MarkdownEditor from '@/components/MarkdownEditor';
 
 interface Material {
   id: string;
@@ -306,13 +307,12 @@ export default function AdminMaterialsPage() {
                 {/* Content */}
                 <div className="space-y-1.5 md:col-span-3">
                   <Label htmlFor="content" className="text-sm font-semibold">Isi Konten Materi * (Mendukung tag HTML & format Markdown)</Label>
-                  <textarea 
+                  <MarkdownEditor
                     id="content"
-                    rows={12}
                     value={formData.content}
-                    onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
-                    placeholder="Gunakan Markdown atau teks tebal, daftar rincian dll..."
-                    className="w-full rounded-lg border border-input bg-muted/30 px-3 py-2 text-sm transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 font-sans"
+                    onChange={(newVal) => setFormData(prev => ({ ...prev, content: newVal }))}
+                    placeholder="Tulis materi pembelajaran di sini... Gunakan tombol + Tabel untuk membuat dan memasukkan tabel interaktif."
+                    rows={12}
                     required
                   />
                 </div>
