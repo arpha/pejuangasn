@@ -26,6 +26,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription }
 import { Material, UserMaterialProgress, Question } from '@/types';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
 import MathText from '@/components/MathText';
+import { useStudyTracker } from '@/hooks/useStudyTracker';
 
 // Fallbacks matching database.sql seed
 const fallbackMaterialsMap: Record<string, Material> = {
@@ -125,6 +126,13 @@ export default function MaterialDetailPage() {
   });
 
   const activeMaterial = material || fallbackMaterialsMap[slug];
+
+  // Rekam jam belajar materi (hanya 1 request jika durasi aktif >= 1 menit)
+  useStudyTracker({
+    activityType: 'MATERI',
+    title: activeMaterial?.title || `Materi: ${slug}`,
+    enabled: !!profile?.id,
+  });
 
   // Fetch user reading and quiz progress for this material
   const { data: progress, isLoading: isProgLoading, refetch: refetchProgress } = useQuery<UserMaterialProgress | null>({

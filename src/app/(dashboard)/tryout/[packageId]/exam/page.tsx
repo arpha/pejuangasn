@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { 
   ArrowLeft, 
   ArrowRight, 
@@ -16,6 +16,7 @@ import { toast } from 'sonner';
 
 import { supabase } from '@/lib/supabase';
 import { useExamStore } from '@/store/useExamStore';
+import { useStudyTracker } from '@/hooks/useStudyTracker';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -48,6 +49,23 @@ export default function CATExamPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const isSubmittedRef = useRef(false);
   const saveTimeoutRef = useRef<Record<string, NodeJS.Timeout>>({});
+
+  // Fetch package title for tracking log
+  const { data: examPackage } = useQuery({
+    queryKey: ['package-title', packageId],
+    queryFn: async () => {
+      const { data } = await supabase.from('packages').select('title').eq('id', packageId).maybeSingle();
+      return data;
+    },
+    enabled: !!packageId,
+  });
+
+  // Rekam jam belajar tryout (hanya 1 request jika durasi aktif >= 1 menit)
+  useStudyTracker({
+    activityType: 'TRYOUT',
+    title: examPackage?.title || 'Tryout CAT SKD',
+    enabled: Boolean(isActive && !isSubmitted),
+  });
 
   // Helper to calculate scores
   const calculateScores = useCallback(() => {

@@ -211,4 +211,16 @@ export interface UserMaterialProgress {
   created_at: string;
 }
 
+export type StudyActivityType = 'MATERI' | 'LATIHAN' | 'TRYOUT';
+
+export interface StudyLog {
+  id: string;
+  user_id: string;
+  activity_type: StudyActivityType;
+  title: string | null;
+  duration_seconds: number;
+  created_at: string;
+}
+
+
 

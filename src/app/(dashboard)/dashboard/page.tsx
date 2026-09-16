@@ -29,7 +29,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ExamAttempt, Material, UserMaterialProgress } from '@/types';
+import { ExamAttempt, Material, UserMaterialProgress, StudyLog } from '@/types';
 
 export default function DashboardPage() {
   const { profile, setProfile } = useAuthStore();
@@ -84,6 +84,26 @@ export default function DashboardPage() {
     enabled: !!profile?.id,
   });
 
+  // Fetch user study logs to aggregate total study hours
+  const { data: studyLogs = [] } = useQuery<StudyLog[]>({
+    queryKey: ['study-logs', profile?.id],
+    queryFn: async () => {
+      if (!profile?.id) return [];
+      try {
+        const { data, error } = await supabase
+          .from('study_logs')
+          .select('*')
+          .eq('user_id', profile.id);
+        if (error) throw error;
+        return (data || []) as StudyLog[];
+      } catch (err) {
+        console.warn('Gagal memuat study_logs:', err);
+        return [];
+      }
+    },
+    enabled: !!profile?.id,
+  });
+
   const togglePremiumMock = async () => {
     if (!profile) return;
     const newStatus = profile.subscription_status === 'FREE' ? 'PREMIUM' : 'FREE';
@@ -103,9 +123,37 @@ export default function DashboardPage() {
       .eq('id', profile.id);
   };
 
-
-
   const completedAttempts = attempts.filter((a) => a.status === 'COMPLETED');
+
+  // Hitung total jam belajar (dari study_logs + fallback riwayat exam_attempts jika belum ada log tryout)
+  const totalStudySeconds = useMemo(() => {
+    let totalSec = studyLogs.reduce((acc, log) => acc + (log.duration_seconds || 0), 0);
+
+    const hasTryoutLogInLogs = studyLogs.some((l) => l.activity_type === 'TRYOUT');
+    if (!hasTryoutLogInLogs && completedAttempts.length > 0) {
+      completedAttempts.forEach((att) => {
+        if (att.started_at && att.completed_at) {
+          const dur = Math.floor(
+            (new Date(att.completed_at).getTime() - new Date(att.started_at).getTime()) / 1000
+          );
+          if (dur > 0 && dur < 10800) {
+            totalSec += dur;
+          }
+        }
+      });
+    }
+    return totalSec;
+  }, [studyLogs, completedAttempts]);
+
+  const formattedStudyTime = useMemo(() => {
+    const hours = Math.floor(totalStudySeconds / 3600);
+    const minutes = Math.floor((totalStudySeconds % 3600) / 60);
+
+    if (hours > 0) {
+      return `${hours} Jam ${minutes} Mnt`;
+    }
+    return `${minutes} Menit`;
+  }, [totalStudySeconds]);
 
   // Fetch user answers of the last 5 completed attempts
   const { data: answersHistory = [] } = useQuery<any[]>({
@@ -314,12 +362,12 @@ export default function DashboardPage() {
         <Card className="bg-card border-border shadow-sm">
           <CardContent className="pt-6 flex items-center gap-4">
             <div className="bg-amber-500/10 dark:bg-amber-500/20 p-3 rounded-xl text-amber-600 dark:text-amber-400">
-              <BookOpen className="h-6 w-6" />
+              <Clock className="h-6 w-6" />
             </div>
             <div>
-              <p className="text-xs font-semibold text-muted-foreground uppercase">Materi Selesai</p>
+              <p className="text-xs font-semibold text-muted-foreground uppercase">Total Jam Belajar</p>
               <h3 className="text-2xl font-black text-foreground mt-1">
-                {completedMaterialsCount} / {totalMaterials} ({overallMaterialPercent}%)
+                {formattedStudyTime}
               </h3>
             </div>
           </CardContent>

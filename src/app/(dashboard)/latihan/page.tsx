@@ -32,6 +32,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { Question } from '@/types';
 import MathText from '@/components/MathText';
+import { useStudyTracker } from '@/hooks/useStudyTracker';
 
 export default function LatihanSoalPage() {
   const { profile } = useAuthStore();
@@ -59,6 +60,22 @@ export default function LatihanSoalPage() {
   const [drillTime, setDrillTime] = useState<number | null>(null); // null = unlimited, otherwise in minutes
   const [drillCount, setDrillCount] = useState<number>(10);
   const [timeLeft, setTimeLeft] = useState<number>(0);
+
+  // Rekam jam belajar latihan soal (hanya 1 request jika durasi aktif >= 1 menit)
+  const isPracticing = Boolean((selectedCategory || isDrillMode) && activeQuestions.length > 0 && !isFinished);
+  const practiceTitle = isDrillMode
+    ? `Latihan Mode Drill (${drillCategories.join(', ')})`
+    : selectedSubCategory
+      ? `Latihan ${selectedCategory} - ${selectedSubCategory}`
+      : selectedCategory
+        ? `Latihan Kategori ${selectedCategory}`
+        : 'Latihan Soal';
+
+  useStudyTracker({
+    activityType: 'LATIHAN',
+    title: practiceTitle,
+    enabled: isPracticing && !!profile?.id,
+  });
 
   // Parse search params for auto configuration
   useEffect(() => {
