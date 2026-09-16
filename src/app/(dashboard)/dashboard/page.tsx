@@ -341,11 +341,6 @@ export default function DashboardPage() {
                   <CardTitle className="text-base font-bold text-foreground">
                     Progress Materi Belajar SKD
                   </CardTitle>
-                  {!isPremium && (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-                      <Lock className="h-3 w-3" /> Fitur Premium
-                    </span>
-                  )}
                 </div>
                 <CardDescription>
                   Pantau ketuntasan modul pembelajaran dan kuis evaluasi TWK, TIU, dan TKP.
@@ -433,6 +428,23 @@ export default function DashboardPage() {
                   </div>
                 </div>
               </CardContent>
+
+              {!isPremium && (
+                <div className="absolute inset-0 z-10 flex items-center justify-center p-4">
+                  <Link 
+                    href="/profil?tab=paket"
+                    className="group inline-flex items-center gap-3 px-6 py-3 rounded-full bg-amber-500/15 hover:bg-amber-500/25 dark:bg-amber-500/20 dark:hover:bg-amber-500/30 text-amber-700 dark:text-amber-300 border-2 border-amber-500/40 hover:border-amber-500/70 backdrop-blur-md shadow-xl shadow-amber-500/10 hover:shadow-amber-500/20 transition-all duration-300 transform hover:scale-105 active:scale-95 cursor-pointer"
+                  >
+                    <div className="p-1.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 group-hover:bg-amber-500 group-hover:text-white transition-colors">
+                      <Lock className="h-4 w-4 sm:h-5 sm:w-5" />
+                    </div>
+                    <span className="text-sm sm:text-base font-extrabold uppercase tracking-wider">
+                      Fitur Premium
+                    </span>
+                    <ChevronRight className="h-4 w-4 text-amber-600 dark:text-amber-400 group-hover:translate-x-1 transition-transform duration-300" />
+                  </Link>
+                </div>
+              )}
             </div>
           </Card>
 

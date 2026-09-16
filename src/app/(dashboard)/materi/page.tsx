@@ -16,7 +16,9 @@ import {
   CheckCircle2,
   Trophy,
   Award,
-  BookMarked
+  BookMarked,
+  Lock,
+  ChevronRight
 } from 'lucide-react';
 
 import { supabase } from '@/lib/supabase';
@@ -169,7 +171,7 @@ export default function MaterialsPage() {
 
       {/* Reading Progress Tracker Board */}
       {profile?.id && materials.length > 0 && (
-        <Card className="bg-gradient-to-r from-indigo-500/[0.04] via-indigo-500/[0.01] to-transparent border border-border shadow-sm rounded-2xl overflow-hidden">
+        <Card className="bg-gradient-to-r from-indigo-500/[0.04] via-indigo-500/[0.01] to-transparent border border-border shadow-sm rounded-2xl overflow-hidden relative">
           <CardContent className={`p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-5 transition-all duration-300 ${
             !isPremium ? 'filter blur-[7px] select-none pointer-events-none opacity-40 grayscale-[20%]' : ''
           }`}>
@@ -195,6 +197,23 @@ export default function MaterialsPage() {
               </div>
             </div>
           </CardContent>
+
+          {!isPremium && (
+            <div className="absolute inset-0 z-10 flex items-center justify-center p-4">
+              <Link 
+                href="/profil?tab=paket"
+                className="group inline-flex items-center gap-3 px-6 py-3 rounded-full bg-amber-500/15 hover:bg-amber-500/25 dark:bg-amber-500/20 dark:hover:bg-amber-500/30 text-amber-700 dark:text-amber-300 border-2 border-amber-500/40 hover:border-amber-500/70 backdrop-blur-md shadow-xl shadow-amber-500/10 hover:shadow-amber-500/20 transition-all duration-300 transform hover:scale-105 active:scale-95 cursor-pointer"
+              >
+                <div className="p-1.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 group-hover:bg-amber-500 group-hover:text-white transition-colors">
+                  <Lock className="h-4 w-4 sm:h-5 sm:w-5" />
+                </div>
+                <span className="text-sm sm:text-base font-extrabold uppercase tracking-wider">
+                  Fitur Premium
+                </span>
+                <ChevronRight className="h-4 w-4 text-amber-600 dark:text-amber-400 group-hover:translate-x-1 transition-transform duration-300" />
+              </Link>
+            </div>
+          )}
         </Card>
       )}
 
