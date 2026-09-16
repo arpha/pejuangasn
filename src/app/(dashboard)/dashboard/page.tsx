@@ -560,211 +560,7 @@ export default function DashboardPage() {
             </div>
           </Card>
 
-          {/* Card Grid: Analisis Performa & Tren SVG */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Performa per Kategori */}
-            <Card className="bg-card border-border shadow-sm overflow-hidden relative">
-              <CardHeader className="pb-3 border-b border-border/60 bg-muted/5">
-                <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
-                  <BarChart2 className="h-5 w-5 text-indigo-600 dark:text-indigo-400" /> Analisis Performa Kategori
-                </CardTitle>
-                <CardDescription>Rata-rata skor Anda dibandingkan passing grade.</CardDescription>
-              </CardHeader>
-              <div className="relative">
-                <CardContent className={`p-6 space-y-4 transition-all duration-300 ${
-                  !isPremium ? 'filter blur-[7px] select-none pointer-events-none opacity-40 grayscale-[20%]' : ''
-                }`}>
-                  {/* TWK */}
-                  <div className="space-y-1.5">
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="font-semibold text-foreground">TWK (Ambang Batas: 65)</span>
-                      <span className={`font-bold ${avgTwk >= 65 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-500'}`}>
-                        {avgTwk} / 150 ({avgTwk >= 65 ? 'Lolos' : 'Belum Lolos'})
-                      </span>
-                    </div>
-                    <div className="h-2 bg-muted rounded-full overflow-hidden">
-                      <div 
-                        className={`h-full rounded-full transition-all duration-500 ${avgTwk >= 65 ? 'bg-emerald-500' : 'bg-rose-500'}`}
-                        style={{ width: `${(avgTwk / 150) * 100}%` }}
-                      />
-                    </div>
-                  </div>
 
-                  {/* TIU */}
-                  <div className="space-y-1.5">
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="font-semibold text-foreground">TIU (Ambang Batas: 80)</span>
-                      <span className={`font-bold ${avgTiu >= 80 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-500'}`}>
-                        {avgTiu} / 175 ({avgTiu >= 80 ? 'Lolos' : 'Belum Lolos'})
-                      </span>
-                    </div>
-                    <div className="h-2 bg-muted rounded-full overflow-hidden">
-                      <div 
-                        className={`h-full rounded-full transition-all duration-500 ${avgTiu >= 80 ? 'bg-emerald-500' : 'bg-rose-500'}`}
-                        style={{ width: `${(avgTiu / 175) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* TKP */}
-                  <div className="space-y-1.5">
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="font-semibold text-foreground">TKP (Ambang Batas: 166)</span>
-                      <span className={`font-bold ${avgTkp >= 166 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-500'}`}>
-                        {avgTkp} / 225 ({avgTkp >= 166 ? 'Lolos' : 'Belum Lolos'})
-                      </span>
-                    </div>
-                    <div className="h-2 bg-muted rounded-full overflow-hidden">
-                      <div 
-                        className={`h-full rounded-full transition-all duration-500 ${avgTkp >= 166 ? 'bg-emerald-500' : 'bg-rose-500'}`}
-                        style={{ width: `${(avgTkp / 225) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-
-                {!isPremium && (
-                  <div className="absolute inset-0 z-10 flex items-center justify-center p-4">
-                    <Link 
-                      href="/profil?tab=paket"
-                      className="group inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-amber-500/15 hover:bg-amber-500/25 dark:bg-amber-500/20 dark:hover:bg-amber-500/30 text-amber-700 dark:text-amber-300 border-2 border-amber-500/40 hover:border-amber-500/70 backdrop-blur-md shadow-xl shadow-amber-500/10 hover:shadow-amber-500/20 transition-all duration-300 transform hover:scale-105 active:scale-95 cursor-pointer"
-                    >
-                      <div className="p-1.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 group-hover:bg-amber-500 group-hover:text-white transition-colors">
-                        <Lock className="h-4 w-4" />
-                      </div>
-                      <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider">
-                        Fitur Premium
-                      </span>
-                      <ChevronRight className="h-4 w-4 text-amber-600 dark:text-amber-400 group-hover:translate-x-1 transition-transform duration-300" />
-                    </Link>
-                  </div>
-                )}
-              </div>
-            </Card>
-
-            {/* Tren Skor SVG */}
-            <Card className="bg-card border-border shadow-sm overflow-hidden relative">
-              <CardHeader className="pb-3 border-b border-border/60 bg-muted/5">
-                <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-indigo-600 dark:text-indigo-400" /> Tren Perkembangan Skor
-                </CardTitle>
-                <CardDescription>Grafik nilai dari 5 tryout terakhir.</CardDescription>
-              </CardHeader>
-              <div className="relative">
-                <CardContent className={`flex items-center justify-center p-4 min-h-[220px] transition-all duration-300 ${
-                  !isPremium ? 'filter blur-[7px] select-none pointer-events-none opacity-40 grayscale-[20%]' : ''
-                }`}>
-                  {chartAttempts.length < 2 && isPremium ? (
-                    <div className="text-center py-8 text-muted-foreground text-xs">
-                      <TrendingUp className="h-8 w-8 mx-auto mb-2 text-muted-foreground/30" />
-                      Selesaikan minimal 2 tryout untuk melihat grafik tren skor Anda.
-                    </div>
-                  ) : (
-                    <div className="w-full relative">
-                      <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="w-full h-auto overflow-visible">
-                        {/* Grid Lines */}
-                        {[100, 200, 300, 400, 500].map((gridScore) => {
-                          const y = paddingY + chartHeight - (gridScore / maxScoreScale) * chartHeight;
-                          return (
-                            <g key={gridScore}>
-                              <line 
-                                x1={paddingX} 
-                                y1={y} 
-                                x2={svgWidth - paddingX} 
-                                y2={y} 
-                                stroke="currentColor" 
-                                className="text-border/50"
-                                strokeDasharray="4 4"
-                              />
-                              <text 
-                                x={paddingX - 10} 
-                                y={y + 4} 
-                                textAnchor="end" 
-                                className="fill-muted-foreground text-[10px] font-mono"
-                              >
-                                {gridScore}
-                              </text>
-                            </g>
-                          );
-                        })}
-
-                        {/* Area Path */}
-                        <path 
-                          d={areaPath} 
-                          fill="url(#grad)" 
-                          className="opacity-15 dark:opacity-20 text-indigo-600 dark:text-indigo-400"
-                          stroke="none"
-                        />
-
-                        {/* Line Path */}
-                        <path 
-                          d={pointsPath} 
-                          fill="none" 
-                          stroke="rgb(79, 70, 229)" 
-                          strokeWidth="3.5" 
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-
-                        {/* Gradients */}
-                        <defs>
-                          <linearGradient id="grad" x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" stopColor="rgb(99, 102, 241)" />
-                            <stop offset="100%" stopColor="rgb(99, 102, 241)" stopOpacity="0" />
-                          </linearGradient>
-                        </defs>
-
-                        {/* Dots and Labels */}
-                        {coords.map((c, i) => (
-                          <g key={i}>
-                            <circle 
-                              cx={c.x} 
-                              cy={c.y} 
-                              r="5" 
-                              className="fill-indigo-600 dark:fill-indigo-400 stroke-background stroke-2" 
-                            />
-                            <text 
-                              x={c.x} 
-                              y={c.y - 10} 
-                              textAnchor="middle" 
-                              className="fill-foreground text-[10px] font-bold"
-                            >
-                              {c.score}
-                            </text>
-                            <text 
-                              x={c.x} 
-                              y={paddingY + chartHeight + 18} 
-                              textAnchor="middle" 
-                              className="fill-muted-foreground text-[9px] font-semibold"
-                            >
-                              {c.date}
-                            </text>
-                          </g>
-                        ))}
-                      </svg>
-                    </div>
-                  )}
-                </CardContent>
-
-                {!isPremium && (
-                  <div className="absolute inset-0 z-10 flex items-center justify-center p-4">
-                    <Link 
-                      href="/profil?tab=paket"
-                      className="group inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-amber-500/15 hover:bg-amber-500/25 dark:bg-amber-500/20 dark:hover:bg-amber-500/30 text-amber-700 dark:text-amber-300 border-2 border-amber-500/40 hover:border-amber-500/70 backdrop-blur-md shadow-xl shadow-amber-500/10 hover:shadow-amber-500/20 transition-all duration-300 transform hover:scale-105 active:scale-95 cursor-pointer"
-                    >
-                      <div className="p-1.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 group-hover:bg-amber-500 group-hover:text-white transition-colors">
-                        <Lock className="h-4 w-4" />
-                      </div>
-                      <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider">
-                        Fitur Premium
-                      </span>
-                      <ChevronRight className="h-4 w-4 text-amber-600 dark:text-amber-400 group-hover:translate-x-1 transition-transform duration-300" />
-                    </Link>
-                  </div>
-                )}
-              </div>
-            </Card>
-          </div>
 
           {/* Rekomendasi Belajar Pintar */}
           {totalCompleted > 0 && (
@@ -828,71 +624,98 @@ export default function DashboardPage() {
             </Card>
           )}
 
-        </div>
-
-        {/* Right Side: Aktivitas + Profile Summary & Tips */}
-        <div className="space-y-6">
-
           {/* ── Bar Chart: Aktivitas Belajar 7 Hari Terakhir ────────────────── */}
           {(() => {
             const maxMin = Math.max(...weeklyChartData.map(d => d.totalMinutes), 30);
             const todayStr = new Date().toISOString().slice(0, 10);
             const totalThisWeek = weeklyChartData.reduce((s, d) => s + d.totalMinutes, 0);
-            const BAR_H = 110;
+            const BAR_H = 120; // px max bar height
             return (
               <Card className="bg-card border-border shadow-sm overflow-hidden">
-                <CardHeader className="pb-3 border-b border-border/60 bg-muted/5">
-                  <div className="flex items-center justify-between flex-wrap gap-2">
-                    <div className="space-y-0.5">
-                      <CardTitle className="text-sm font-bold text-foreground flex items-center gap-2">
-                        <BarChart2 className="h-4 w-4 text-indigo-500" />
-                        Aktivitas Belajar Minggu Ini
-                      </CardTitle>
-                      <CardDescription className="text-xs">
-                        <strong className="text-foreground">{totalThisWeek} mnt</strong> total &nbsp;·&nbsp; 7 hari terakhir
-                      </CardDescription>
-                    </div>
-                    <div className="flex items-center gap-2 text-[10px] font-semibold text-muted-foreground">
-                      <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-indigo-500 inline-block" />Materi</span>
-                      <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-emerald-500 inline-block" />Latihan</span>
-                      <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-amber-500 inline-block" />Tryout</span>
-                    </div>
+                <CardHeader className="pb-3 border-b border-border/60 bg-muted/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <div className="space-y-1">
+                    <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
+                      <BarChart2 className="h-5 w-5 text-indigo-500" />
+                      Aktivitas Belajar 7 Hari Terakhir
+                    </CardTitle>
+                    <CardDescription>
+                      Total minggu ini: <strong className="text-foreground">{totalThisWeek} menit</strong> &nbsp;·&nbsp; Materi, Latihan &amp; Tryout
+                    </CardDescription>
+                  </div>
+                  {/* Legend */}
+                  <div className="flex items-center gap-3 text-[10px] font-semibold text-muted-foreground shrink-0">
+                    <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-sm bg-indigo-500 inline-block" />Materi</span>
+                    <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-sm bg-emerald-500 inline-block" />Latihan</span>
+                    <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-sm bg-amber-500 inline-block" />Tryout</span>
                   </div>
                 </CardHeader>
-                <CardContent className="px-4 pb-4 pt-3">
-                  <div className="flex items-end justify-between gap-1" style={{ height: `${BAR_H + 32}px` }}>
+
+                <CardContent className="p-4 sm:p-6 pt-4">
+                  <div className="flex items-end justify-between gap-1.5 sm:gap-3" style={{ height: `${BAR_H + 36}px` }}>
                     {weeklyChartData.map((day, i) => {
                       const isToday = day.date === todayStr;
                       const barTotalH = maxMin > 0 ? Math.max((day.totalMinutes / maxMin) * BAR_H, day.totalMinutes > 0 ? 4 : 0) : 0;
                       const materiH = day.totalMinutes > 0 ? (day.materiMin / day.totalMinutes) * barTotalH : 0;
                       const latihanH = day.totalMinutes > 0 ? (day.latihanMin / day.totalMinutes) * barTotalH : 0;
                       const tryoutH = barTotalH - materiH - latihanH;
+
                       return (
                         <div key={i} className="flex-1 flex flex-col items-center gap-1 group relative">
+                          {/* Tooltip */}
                           {day.totalMinutes > 0 && (
-                            <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-20 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 w-24">
-                              <div className="bg-card border border-border rounded-xl shadow-lg px-2 py-1.5 text-[10px] space-y-0.5">
-                                <p className="font-bold text-foreground text-center border-b border-border pb-1 mb-1">{day.label} · {day.totalMinutes}m</p>
-                                {day.materiMin > 0 && <p className="flex justify-between gap-1"><span className="text-indigo-500">Materi</span><span>{day.materiMin}m</span></p>}
-                                {day.latihanMin > 0 && <p className="flex justify-between gap-1"><span className="text-emerald-500">Latihan</span><span>{day.latihanMin}m</span></p>}
-                                {day.tryoutMin > 0 && <p className="flex justify-between gap-1"><span className="text-amber-500">Tryout</span><span>{day.tryoutMin}m</span></p>}
+                            <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-20 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 w-28">
+                              <div className="bg-card border border-border rounded-xl shadow-lg px-2.5 py-2 text-[10px] space-y-1">
+                                <p className="font-bold text-foreground text-center border-b border-border pb-1 mb-1">{day.label} · {day.totalMinutes} mnt</p>
+                                {day.materiMin > 0 && <p className="flex justify-between"><span className="text-indigo-500">Materi</span><span>{day.materiMin} mnt</span></p>}
+                                {day.latihanMin > 0 && <p className="flex justify-between"><span className="text-emerald-500">Latihan</span><span>{day.latihanMin} mnt</span></p>}
+                                {day.tryoutMin > 0 && <p className="flex justify-between"><span className="text-amber-500">Tryout</span><span>{day.tryoutMin} mnt</span></p>}
                               </div>
+                              {/* Arrow */}
                               <div className="w-2 h-2 bg-card border-r border-b border-border rotate-45 mx-auto -mt-1" />
                             </div>
                           )}
-                          <span className={`text-[9px] font-bold mb-0.5 ${day.totalMinutes > 0 ? 'text-foreground' : 'text-transparent'}`}>
+
+                          {/* Minute label */}
+                          <span className={`text-[9px] font-bold mb-0.5 transition-colors ${day.totalMinutes > 0 ? 'text-foreground' : 'text-transparent'}`}>
                             {day.totalMinutes}
                           </span>
+
+                          {/* Stacked Bar */}
                           <div
-                            className="w-full rounded-t-md overflow-hidden flex flex-col-reverse cursor-pointer transition-all duration-300 group-hover:brightness-110"
-                            style={{ height: `${BAR_H}px` }}
+                            className="w-full rounded-t-lg overflow-hidden flex flex-col-reverse cursor-pointer transition-all duration-300 group-hover:brightness-110"
+                            style={{ height: `${BAR_H}px`, justifyContent: 'flex-start' }}
                           >
-                            {day.totalMinutes === 0 && <div className="w-full bg-muted/30 rounded" style={{ height: '3px' }} />}
-                            {day.tryoutMin > 0 && <div className="w-full bg-amber-500/80 dark:bg-amber-500" style={{ height: `${tryoutH}px`, minHeight: '3px' }} />}
-                            {day.latihanMin > 0 && <div className="w-full bg-emerald-500/80 dark:bg-emerald-500" style={{ height: `${latihanH}px`, minHeight: '3px' }} />}
-                            {day.materiMin > 0 && <div className="w-full bg-indigo-500/80 dark:bg-indigo-500 rounded-t" style={{ height: `${materiH}px`, minHeight: '3px' }} />}
+                            {/* Empty state */}
+                            {day.totalMinutes === 0 && (
+                              <div className="w-full bg-muted/30 rounded-lg" style={{ height: '4px' }} />
+                            )}
+                            {/* Stacked segments (bottom → top: tryout, latihan, materi) */}
+                            {day.tryoutMin > 0 && (
+                              <div
+                                className="w-full bg-amber-500/80 dark:bg-amber-500"
+                                style={{ height: `${tryoutH}px`, minHeight: tryoutH > 0 ? '3px' : '0' }}
+                              />
+                            )}
+                            {day.latihanMin > 0 && (
+                              <div
+                                className="w-full bg-emerald-500/80 dark:bg-emerald-500"
+                                style={{ height: `${latihanH}px`, minHeight: latihanH > 0 ? '3px' : '0' }}
+                              />
+                            )}
+                            {day.materiMin > 0 && (
+                              <div
+                                className="w-full bg-indigo-500/80 dark:bg-indigo-500 rounded-t-md"
+                                style={{ height: `${materiH}px`, minHeight: materiH > 0 ? '3px' : '0' }}
+                              />
+                            )}
                           </div>
-                          <span className={`text-[10px] font-bold ${isToday ? 'text-indigo-600 dark:text-indigo-400' : 'text-muted-foreground'}`}>
+
+                          {/* Day label */}
+                          <span className={`text-[11px] font-bold transition-colors ${
+                            isToday
+                              ? 'text-indigo-600 dark:text-indigo-400'
+                              : 'text-muted-foreground'
+                          }`}>
                             {day.label}
                             {isToday && <span className="block h-1 w-1 rounded-full bg-indigo-500 mx-auto mt-0.5" />}
                           </span>
@@ -900,9 +723,11 @@ export default function DashboardPage() {
                       );
                     })}
                   </div>
+
+                  {/* Bottom summary row */}
                   {totalThisWeek === 0 && (
-                    <p className="text-center text-[11px] text-muted-foreground mt-2">
-                      Belum ada aktivitas minggu ini. Yuk mulai belajar! 🎯
+                    <p className="text-center text-xs text-muted-foreground mt-3">
+                      Belum ada aktivitas belajar minggu ini. Yuk mulai belajar! 🎯
                     </p>
                   )}
                 </CardContent>
@@ -910,6 +735,10 @@ export default function DashboardPage() {
             );
           })()}
 
+        </div>
+
+        {/* Right Side: Profile Summary & Tips */}
+        <div className="space-y-6">
           <Card className="bg-card border-border shadow-sm">
             <CardHeader>
               <CardTitle className="text-lg font-bold text-foreground">Akun Anda</CardTitle>
@@ -942,6 +771,209 @@ export default function DashboardPage() {
 
 
             </CardContent>
+          </Card>
+
+          {/* Performa per Kategori */}
+          <Card className="bg-card border-border shadow-sm overflow-hidden relative">
+            <CardHeader className="pb-3 border-b border-border/60 bg-muted/5">
+              <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
+                <BarChart2 className="h-5 w-5 text-indigo-600 dark:text-indigo-400" /> Analisis Performa Kategori
+              </CardTitle>
+              <CardDescription>Rata-rata skor Anda dibandingkan passing grade.</CardDescription>
+            </CardHeader>
+            <div className="relative">
+              <CardContent className={`p-6 space-y-4 transition-all duration-300 ${
+                !isPremium ? 'filter blur-[7px] select-none pointer-events-none opacity-40 grayscale-[20%]' : ''
+              }`}>
+                {/* TWK */}
+                <div className="space-y-1.5">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="font-semibold text-foreground">TWK (Ambang Batas: 65)</span>
+                    <span className={`font-bold ${avgTwk >= 65 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-500'}`}>
+                      {avgTwk} / 150 ({avgTwk >= 65 ? 'Lolos' : 'Belum Lolos'})
+                    </span>
+                  </div>
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full rounded-full transition-all duration-500 ${avgTwk >= 65 ? 'bg-emerald-500' : 'bg-rose-500'}`}
+                      style={{ width: `${(avgTwk / 150) * 100}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* TIU */}
+                <div className="space-y-1.5">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="font-semibold text-foreground">TIU (Ambang Batas: 80)</span>
+                    <span className={`font-bold ${avgTiu >= 80 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-500'}`}>
+                      {avgTiu} / 175 ({avgTiu >= 80 ? 'Lolos' : 'Belum Lolos'})
+                    </span>
+                  </div>
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full rounded-full transition-all duration-500 ${avgTiu >= 80 ? 'bg-emerald-500' : 'bg-rose-500'}`}
+                      style={{ width: `${(avgTiu / 175) * 100}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* TKP */}
+                <div className="space-y-1.5">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="font-semibold text-foreground">TKP (Ambang Batas: 166)</span>
+                    <span className={`font-bold ${avgTkp >= 166 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-500'}`}>
+                      {avgTkp} / 225 ({avgTkp >= 166 ? 'Lolos' : 'Belum Lolos'})
+                    </span>
+                  </div>
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full rounded-full transition-all duration-500 ${avgTkp >= 166 ? 'bg-emerald-500' : 'bg-rose-500'}`}
+                      style={{ width: `${(avgTkp / 225) * 100}%` }}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+
+              {!isPremium && (
+                <div className="absolute inset-0 z-10 flex items-center justify-center p-4">
+                  <Link 
+                    href="/profil?tab=paket"
+                    className="group inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-amber-500/15 hover:bg-amber-500/25 dark:bg-amber-500/20 dark:hover:bg-amber-500/30 text-amber-700 dark:text-amber-300 border-2 border-amber-500/40 hover:border-amber-500/70 backdrop-blur-md shadow-xl shadow-amber-500/10 hover:shadow-amber-500/20 transition-all duration-300 transform hover:scale-105 active:scale-95 cursor-pointer"
+                  >
+                    <div className="p-1.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 group-hover:bg-amber-500 group-hover:text-white transition-colors">
+                      <Lock className="h-4 w-4" />
+                    </div>
+                    <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider">
+                      Fitur Premium
+                    </span>
+                    <ChevronRight className="h-4 w-4 text-amber-600 dark:text-amber-400 group-hover:translate-x-1 transition-transform duration-300" />
+                  </Link>
+                </div>
+              )}
+            </div>
+          </Card>
+
+          {/* Tren Skor SVG */}
+          <Card className="bg-card border-border shadow-sm overflow-hidden relative">
+            <CardHeader className="pb-3 border-b border-border/60 bg-muted/5">
+              <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-indigo-600 dark:text-indigo-400" /> Tren Perkembangan Skor
+              </CardTitle>
+              <CardDescription>Grafik nilai dari 5 tryout terakhir.</CardDescription>
+            </CardHeader>
+            <div className="relative">
+              <CardContent className={`flex items-center justify-center p-4 min-h-[220px] transition-all duration-300 ${
+                !isPremium ? 'filter blur-[7px] select-none pointer-events-none opacity-40 grayscale-[20%]' : ''
+              }`}>
+                {chartAttempts.length < 2 && isPremium ? (
+                  <div className="text-center py-8 text-muted-foreground text-xs">
+                    <TrendingUp className="h-8 w-8 mx-auto mb-2 text-muted-foreground/30" />
+                    Selesaikan minimal 2 tryout untuk melihat grafik tren skor Anda.
+                  </div>
+                ) : (
+                  <div className="w-full relative">
+                    <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="w-full h-auto overflow-visible">
+                      {/* Grid Lines */}
+                      {[100, 200, 300, 400, 500].map((gridScore) => {
+                        const y = paddingY + chartHeight - (gridScore / maxScoreScale) * chartHeight;
+                        return (
+                          <g key={gridScore}>
+                            <line 
+                              x1={paddingX} 
+                              y1={y} 
+                              x2={svgWidth - paddingX} 
+                              y2={y} 
+                              stroke="currentColor" 
+                              className="text-border/50"
+                              strokeDasharray="4 4"
+                            />
+                            <text 
+                              x={paddingX - 10} 
+                              y={y + 4} 
+                              textAnchor="end" 
+                              className="fill-muted-foreground text-[10px] font-mono"
+                            >
+                              {gridScore}
+                            </text>
+                          </g>
+                        );
+                      })}
+
+                      {/* Area Path */}
+                      <path 
+                        d={areaPath} 
+                        fill="url(#grad)" 
+                        className="opacity-15 dark:opacity-20 text-indigo-600 dark:text-indigo-400"
+                        stroke="none"
+                      />
+
+                      {/* Line Path */}
+                      <path 
+                        d={pointsPath} 
+                        fill="none" 
+                        stroke="rgb(79, 70, 229)" 
+                        strokeWidth="3.5" 
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+
+                      {/* Gradients */}
+                      <defs>
+                        <linearGradient id="grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                          <stop offset="0%" stopColor="rgb(99, 102, 241)" />
+                          <stop offset="100%" stopColor="rgb(99, 102, 241)" stopOpacity="0" />
+                        </linearGradient>
+                      </defs>
+
+                      {/* Dots and Labels */}
+                      {coords.map((c, i) => (
+                        <g key={i}>
+                          <circle 
+                            cx={c.x} 
+                            cy={c.y} 
+                            r="5" 
+                            className="fill-indigo-600 dark:fill-indigo-400 stroke-background stroke-2" 
+                          />
+                          <text 
+                            x={c.x} 
+                            y={c.y - 10} 
+                            textAnchor="middle" 
+                            className="fill-foreground text-[10px] font-bold"
+                          >
+                            {c.score}
+                          </text>
+                          <text 
+                            x={c.x} 
+                            y={paddingY + chartHeight + 18} 
+                            textAnchor="middle" 
+                            className="fill-muted-foreground text-[9px] font-semibold"
+                          >
+                            {c.date}
+                          </text>
+                        </g>
+                      ))}
+                    </svg>
+                  </div>
+                )}
+              </CardContent>
+
+              {!isPremium && (
+                <div className="absolute inset-0 z-10 flex items-center justify-center p-4">
+                  <Link 
+                    href="/profil?tab=paket"
+                    className="group inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-amber-500/15 hover:bg-amber-500/25 dark:bg-amber-500/20 dark:hover:bg-amber-500/30 text-amber-700 dark:text-amber-300 border-2 border-amber-500/40 hover:border-amber-500/70 backdrop-blur-md shadow-xl shadow-amber-500/10 hover:shadow-amber-500/20 transition-all duration-300 transform hover:scale-105 active:scale-95 cursor-pointer"
+                  >
+                    <div className="p-1.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 group-hover:bg-amber-500 group-hover:text-white transition-colors">
+                      <Lock className="h-4 w-4" />
+                    </div>
+                    <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider">
+                      Fitur Premium
+                    </span>
+                    <ChevronRight className="h-4 w-4 text-amber-600 dark:text-amber-400 group-hover:translate-x-1 transition-transform duration-300" />
+                  </Link>
+                </div>
+              )}
+            </div>
           </Card>
 
           {/* History attempts */}
