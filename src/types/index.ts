@@ -31,6 +31,7 @@ export interface Material {
   title: string;
   slug: string;
   category: CategoryType;
+  sub_category?: SubCategoryType | null;
   content: string;
   created_at: string;
 }

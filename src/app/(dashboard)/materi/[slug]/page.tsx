@@ -38,6 +38,7 @@ const fallbackMaterialsMap: Record<string, Material> = {
     title: 'Materi Pilar Negara: Pancasila',
     slug: 'pilar-negara-pancasila',
     category: 'TWK',
+    sub_category: 'Pilar Negara',
     content: `### Pengantar Pancasila
 
 Pancasila sebagai dasar negara dan pandangan hidup bangsa Indonesia memiliki nilai-nilai luhur yang wajib diimplementasikan. Nilai-nilai tersebut terbagi menjadi 5 sila:
@@ -66,6 +67,7 @@ Seseorang yang menolak merawat fasilitas umum yang dibiayai bersama melanggar pe
     title: 'Materi TIU: Analogi & Silogisme',
     slug: 'tiu-analogi-silogisme',
     category: 'TIU',
+    sub_category: 'Silogisme',
     content: `### Pengambilan Kesimpulan (Silogisme)
 
 Silogisme adalah penarikan kesimpulan secara deduktif dari premis-premis yang ada.
@@ -171,7 +173,7 @@ export default function MaterialDetailPage() {
     }
     setIsSaving(true);
     try {
-      // 1. Try querying questions linked to this material
+      // 1. Try querying questions specifically linked to this material (material_id)
       const { data: directQuestions } = await supabase
         .from('questions')
         .select('*')
@@ -180,7 +182,24 @@ export default function MaterialDetailPage() {
       
       let list = directQuestions || [];
 
-      // 2. Fallback to general category / sub_category if empty
+      // 2. Query questions matching sub_category and category if available
+      if (list.length < 5 && activeMaterial.sub_category) {
+        const { data: subCatQuestions } = await supabase
+          .from('questions')
+          .select('*')
+          .eq('category', activeMaterial.category)
+          .eq('sub_category', activeMaterial.sub_category)
+          .limit(30);
+        
+        if (subCatQuestions && subCatQuestions.length > 0) {
+          const existingIds = new Set(list.map(q => q.id));
+          const extra = subCatQuestions.filter(q => !existingIds.has(q.id));
+          const shuffledExtra = extra.sort(() => Math.random() - 0.5);
+          list = [...list, ...shuffledExtra].slice(0, 5);
+        }
+      }
+
+      // 3. Fallback to general category if still less than 5
       if (list.length < 5) {
         const { data: categoryQuestions } = await supabase
           .from('questions')
@@ -426,6 +445,11 @@ export default function MaterialDetailPage() {
               <span className={`inline-block text-xs font-bold px-2.5 py-0.5 rounded-full border ${categoryColor}`}>
                 {activeMaterial.category}
               </span>
+              {activeMaterial.sub_category && (
+                <span className="inline-block text-xs font-semibold px-2.5 py-0.5 rounded-full border border-border bg-muted text-foreground">
+                  {activeMaterial.sub_category}
+                </span>
+              )}
               {!isPremium ? (
                 <span className="inline-flex items-center gap-1 bg-amber-500/10 border border-amber-500/25 text-amber-600 dark:text-amber-400 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full shadow-sm">
                   <Lock className="h-3.5 w-3.5" /> Kuis & Progres Premium
@@ -551,9 +575,19 @@ export default function MaterialDetailPage() {
         /* QUIZ MODULE COMPONENT INLINE */
         <div className="space-y-6">
           <div className="border-b border-border pb-5">
-            <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest bg-indigo-500/10 dark:bg-indigo-500/20 px-2.5 py-1 rounded-full border border-indigo-500/20">
-              Evaluasi Pembelajaran Modul
-            </span>
+            <div className="flex items-center gap-2 flex-wrap mb-2">
+              <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest bg-indigo-500/10 dark:bg-indigo-500/20 px-2.5 py-1 rounded-full border border-indigo-500/20">
+                Evaluasi Pembelajaran Modul
+              </span>
+              <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full border ${categoryColor}`}>
+                {activeMaterial.category}
+              </span>
+              {activeMaterial.sub_category && (
+                <span className="text-[10px] font-semibold bg-muted border border-border text-foreground px-2 py-0.5 rounded-full">
+                  {activeMaterial.sub_category}
+                </span>
+              )}
+            </div>
             <h2 className="text-2xl font-black text-foreground mt-2">{activeMaterial.title}</h2>
             <p className="text-xs text-muted-foreground mt-1">Uji pemahaman konsep Anda dengan 5 soal kuis pilihan ganda berikut.</p>
           </div>

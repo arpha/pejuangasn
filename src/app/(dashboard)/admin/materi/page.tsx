@@ -30,9 +30,16 @@ interface Material {
   title: string;
   slug: string;
   category: 'TWK' | 'TIU' | 'TKP';
+  sub_category?: string | null;
   content: string;
   created_at: string;
 }
+
+const subCategories: Record<'TWK' | 'TIU' | 'TKP', string[]> = {
+  TWK: ['Pilar Negara', 'Nasionalisme', 'Integritas', 'Bela Negara', 'Bahasa Indonesia'],
+  TIU: ['Analogi', 'Silogisme', 'Analitis', 'Berhitung', 'Deret', 'Perbandingan', 'Soal Cerita', 'Analogi Figural', 'Ketidaksamaan Figural', 'Serial Figural'],
+  TKP: ['Pelayanan Publik', 'Jejaring Kerja', 'Sosial Budaya', 'TIK', 'Profesionalisme', 'Anti Radikalisme']
+};
 
 export default function AdminMaterialsPage() {
   const router = useRouter();
@@ -49,6 +56,7 @@ export default function AdminMaterialsPage() {
     title: '',
     slug: '',
     category: 'TWK' as 'TWK' | 'TIU' | 'TKP',
+    sub_category: 'Pilar Negara',
     content: ''
   });
 
@@ -102,6 +110,7 @@ export default function AdminMaterialsPage() {
       title: '',
       slug: '',
       category: 'TWK',
+      sub_category: 'Pilar Negara',
       content: ''
     });
     setEditingMaterial(null);
@@ -114,6 +123,7 @@ export default function AdminMaterialsPage() {
       title: mat.title,
       slug: mat.slug,
       category: mat.category,
+      sub_category: mat.sub_category || subCategories[mat.category][0],
       content: mat.content
     });
     setEditingMaterial(mat);
@@ -158,6 +168,7 @@ export default function AdminMaterialsPage() {
             title: formData.title,
             slug: formData.slug,
             category: formData.category,
+            sub_category: formData.sub_category,
             content: formData.content
           })
           .eq('id', editingMaterial.id);
@@ -173,6 +184,7 @@ export default function AdminMaterialsPage() {
               title: formData.title,
               slug: formData.slug,
               category: formData.category,
+              sub_category: formData.sub_category,
               content: formData.content
             }
           ]);
@@ -183,7 +195,7 @@ export default function AdminMaterialsPage() {
 
       setIsFormOpen(false);
       setEditingMaterial(null);
-      setFormData({ title: '', slug: '', category: 'TWK', content: '' });
+      setFormData({ title: '', slug: '', category: 'TWK', sub_category: 'Pilar Negara', content: '' });
       refetch();
     } catch (err) {
       const error = err as Error;
@@ -196,7 +208,8 @@ export default function AdminMaterialsPage() {
   // Filter materials based on search query and category tab
   const filteredMaterials = materials?.filter((mat) => {
     const matchesSearch = mat.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          mat.slug.toLowerCase().includes(searchQuery.toLowerCase());
+                          mat.slug.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          (mat.sub_category && mat.sub_category.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesCategory = categoryFilter === 'ALL' || mat.category === categoryFilter;
     return matchesSearch && matchesCategory;
   }) || [];
@@ -259,7 +272,7 @@ export default function AdminMaterialsPage() {
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 
                 {/* Title */}
                 <div className="space-y-1.5 md:col-span-2">
@@ -281,7 +294,14 @@ export default function AdminMaterialsPage() {
                   <select 
                     id="category"
                     value={formData.category}
-                    onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value as any }))}
+                    onChange={(e) => {
+                      const newCat = e.target.value as 'TWK' | 'TIU' | 'TKP';
+                      setFormData(prev => ({ 
+                        ...prev, 
+                        category: newCat,
+                        sub_category: subCategories[newCat][0]
+                      }));
+                    }}
                     className="w-full h-10 rounded-lg border border-input bg-transparent px-3 text-sm transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 bg-card dark:bg-card/50"
                   >
                     <option value="TWK">TWK (Tes Wawasan Kebangsaan)</option>
@@ -290,8 +310,25 @@ export default function AdminMaterialsPage() {
                   </select>
                 </div>
 
+                {/* Sub Category */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="sub_category" className="text-sm font-semibold">Sub-Kategori / Topik *</Label>
+                  <select 
+                    id="sub_category"
+                    value={formData.sub_category}
+                    onChange={(e) => setFormData(prev => ({ ...prev, sub_category: e.target.value }))}
+                    className="w-full h-10 rounded-lg border border-input bg-transparent px-3 text-sm transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 bg-card dark:bg-card/50"
+                  >
+                    {subCategories[formData.category]?.map((sub) => (
+                      <option key={sub} value={sub}>
+                        {sub}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
                 {/* Slug */}
-                <div className="space-y-1.5 md:col-span-3">
+                <div className="space-y-1.5 md:col-span-4">
                   <Label htmlFor="slug" className="text-sm font-semibold">Slug URL * (Unik, digunakan untuk alamat link)</Label>
                   <Input 
                     id="slug" 
@@ -421,6 +458,11 @@ export default function AdminMaterialsPage() {
                         }`}>
                           {mat.category}
                         </span>
+                        {mat.sub_category && (
+                          <span className="inline-flex px-2 py-0.5 rounded text-[10px] font-semibold bg-muted border border-border text-foreground">
+                            {mat.sub_category}
+                          </span>
+                        )}
                         <span className="text-[11px] text-muted-foreground font-mono truncate">
                           ID: {mat.id}
                         </span>

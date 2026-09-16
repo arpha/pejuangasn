@@ -616,3 +616,11 @@ CREATE POLICY "Admins have full access to study logs" ON public.study_logs
         EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
     );
 
+
+-- MIGRATION SUB KATEGORI MATERI (SUB-TOPIC FOR LEARNING MATERIALS)
+ALTER TABLE public.materials 
+ADD COLUMN IF NOT EXISTS sub_category TEXT DEFAULT NULL;
+
+CREATE INDEX IF NOT EXISTS idx_materials_sub_category ON public.materials(sub_category);
+
+

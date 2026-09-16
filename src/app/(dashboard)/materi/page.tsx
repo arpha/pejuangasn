@@ -36,6 +36,7 @@ const fallbackMaterials: Material[] = [
     title: 'Materi Pilar Negara: Pancasila',
     slug: 'pilar-negara-pancasila',
     category: 'TWK',
+    sub_category: 'Pilar Negara',
     content: 'Pancasila sebagai dasar negara dan pandangan hidup bangsa Indonesia...',
     created_at: new Date().toISOString(),
   },
@@ -44,6 +45,7 @@ const fallbackMaterials: Material[] = [
     title: 'Materi TIU: Analogi & Silogisme',
     slug: 'tiu-analogi-silogisme',
     category: 'TIU',
+    sub_category: 'Silogisme',
     content: 'Silogisme adalah penarikan kesimpulan secara deduktif dari premis-premis...',
     created_at: new Date().toISOString(),
   },
@@ -104,7 +106,8 @@ export default function MaterialsPage() {
   const filteredMaterials = materials.filter(m => {
     const matchesTab = activeTab === 'ALL' || m.category === activeTab;
     const matchesSearch = m.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          m.category.toLowerCase().includes(searchQuery.toLowerCase());
+                          m.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          (m.sub_category && m.sub_category.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchesTab && matchesSearch;
   });
 
@@ -294,9 +297,19 @@ export default function MaterialsPage() {
                     </div>
 
                     <CardHeader className="p-6 pb-4 pt-7">
-                      <div className="flex justify-between items-start mb-3">
+                      <div className="flex items-center gap-2.5 mb-3">
                         <div className={`p-2 rounded-xl ${styles.iconContainer} shrink-0`}>
                           <Icon className="h-5 w-5" />
+                        </div>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className={`inline-flex px-2.5 py-0.5 rounded-md text-[11px] font-extrabold border ${styles.badge}`}>
+                            {material.category}
+                          </span>
+                          {material.sub_category && (
+                            <span className="inline-flex px-2 py-0.5 rounded-md text-[11px] font-medium bg-muted border border-border text-foreground">
+                              {material.sub_category}
+                            </span>
+                          )}
                         </div>
                       </div>
                       <CardTitle className="text-lg font-bold text-foreground leading-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors pr-28">
