@@ -828,98 +828,71 @@ export default function DashboardPage() {
             </Card>
           )}
 
+        </div>
+
+        {/* Right Side: Aktivitas + Profile Summary & Tips */}
+        <div className="space-y-6">
+
           {/* ── Bar Chart: Aktivitas Belajar 7 Hari Terakhir ────────────────── */}
           {(() => {
             const maxMin = Math.max(...weeklyChartData.map(d => d.totalMinutes), 30);
             const todayStr = new Date().toISOString().slice(0, 10);
             const totalThisWeek = weeklyChartData.reduce((s, d) => s + d.totalMinutes, 0);
-            const BAR_H = 120; // px max bar height
+            const BAR_H = 110;
             return (
               <Card className="bg-card border-border shadow-sm overflow-hidden">
-                <CardHeader className="pb-3 border-b border-border/60 bg-muted/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                  <div className="space-y-1">
-                    <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
-                      <BarChart2 className="h-5 w-5 text-indigo-500" />
-                      Aktivitas Belajar 7 Hari Terakhir
-                    </CardTitle>
-                    <CardDescription>
-                      Total minggu ini: <strong className="text-foreground">{totalThisWeek} menit</strong> &nbsp;·&nbsp; Materi, Latihan &amp; Tryout
-                    </CardDescription>
-                  </div>
-                  {/* Legend */}
-                  <div className="flex items-center gap-3 text-[10px] font-semibold text-muted-foreground shrink-0">
-                    <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-sm bg-indigo-500 inline-block" />Materi</span>
-                    <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-sm bg-emerald-500 inline-block" />Latihan</span>
-                    <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-sm bg-amber-500 inline-block" />Tryout</span>
+                <CardHeader className="pb-3 border-b border-border/60 bg-muted/5">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <div className="space-y-0.5">
+                      <CardTitle className="text-sm font-bold text-foreground flex items-center gap-2">
+                        <BarChart2 className="h-4 w-4 text-indigo-500" />
+                        Aktivitas Belajar Minggu Ini
+                      </CardTitle>
+                      <CardDescription className="text-xs">
+                        <strong className="text-foreground">{totalThisWeek} mnt</strong> total &nbsp;·&nbsp; 7 hari terakhir
+                      </CardDescription>
+                    </div>
+                    <div className="flex items-center gap-2 text-[10px] font-semibold text-muted-foreground">
+                      <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-indigo-500 inline-block" />Materi</span>
+                      <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-emerald-500 inline-block" />Latihan</span>
+                      <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-amber-500 inline-block" />Tryout</span>
+                    </div>
                   </div>
                 </CardHeader>
-
-                <CardContent className="p-4 sm:p-6 pt-4">
-                  <div className="flex items-end justify-between gap-1.5 sm:gap-3" style={{ height: `${BAR_H + 36}px` }}>
+                <CardContent className="px-4 pb-4 pt-3">
+                  <div className="flex items-end justify-between gap-1" style={{ height: `${BAR_H + 32}px` }}>
                     {weeklyChartData.map((day, i) => {
                       const isToday = day.date === todayStr;
                       const barTotalH = maxMin > 0 ? Math.max((day.totalMinutes / maxMin) * BAR_H, day.totalMinutes > 0 ? 4 : 0) : 0;
                       const materiH = day.totalMinutes > 0 ? (day.materiMin / day.totalMinutes) * barTotalH : 0;
                       const latihanH = day.totalMinutes > 0 ? (day.latihanMin / day.totalMinutes) * barTotalH : 0;
                       const tryoutH = barTotalH - materiH - latihanH;
-
                       return (
                         <div key={i} className="flex-1 flex flex-col items-center gap-1 group relative">
-                          {/* Tooltip */}
                           {day.totalMinutes > 0 && (
-                            <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-20 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 w-28">
-                              <div className="bg-card border border-border rounded-xl shadow-lg px-2.5 py-2 text-[10px] space-y-1">
-                                <p className="font-bold text-foreground text-center border-b border-border pb-1 mb-1">{day.label} · {day.totalMinutes} mnt</p>
-                                {day.materiMin > 0 && <p className="flex justify-between"><span className="text-indigo-500">Materi</span><span>{day.materiMin} mnt</span></p>}
-                                {day.latihanMin > 0 && <p className="flex justify-between"><span className="text-emerald-500">Latihan</span><span>{day.latihanMin} mnt</span></p>}
-                                {day.tryoutMin > 0 && <p className="flex justify-between"><span className="text-amber-500">Tryout</span><span>{day.tryoutMin} mnt</span></p>}
+                            <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-20 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 w-24">
+                              <div className="bg-card border border-border rounded-xl shadow-lg px-2 py-1.5 text-[10px] space-y-0.5">
+                                <p className="font-bold text-foreground text-center border-b border-border pb-1 mb-1">{day.label} · {day.totalMinutes}m</p>
+                                {day.materiMin > 0 && <p className="flex justify-between gap-1"><span className="text-indigo-500">Materi</span><span>{day.materiMin}m</span></p>}
+                                {day.latihanMin > 0 && <p className="flex justify-between gap-1"><span className="text-emerald-500">Latihan</span><span>{day.latihanMin}m</span></p>}
+                                {day.tryoutMin > 0 && <p className="flex justify-between gap-1"><span className="text-amber-500">Tryout</span><span>{day.tryoutMin}m</span></p>}
                               </div>
-                              {/* Arrow */}
                               <div className="w-2 h-2 bg-card border-r border-b border-border rotate-45 mx-auto -mt-1" />
                             </div>
                           )}
-
-                          {/* Minute label */}
-                          <span className={`text-[9px] font-bold mb-0.5 transition-colors ${day.totalMinutes > 0 ? 'text-foreground' : 'text-transparent'}`}>
+                          <span className={`text-[9px] font-bold mb-0.5 ${day.totalMinutes > 0 ? 'text-foreground' : 'text-transparent'}`}>
                             {day.totalMinutes}
                           </span>
-
-                          {/* Stacked Bar */}
                           <div
-                            className="w-full rounded-t-lg overflow-hidden flex flex-col-reverse cursor-pointer transition-all duration-300 group-hover:brightness-110"
-                            style={{ height: `${BAR_H}px`, justifyContent: 'flex-start' }}
+                            className="w-full rounded-t-md overflow-hidden flex flex-col-reverse cursor-pointer transition-all duration-300 group-hover:brightness-110"
+                            style={{ height: `${BAR_H}px` }}
                           >
-                            {/* Empty state */}
-                            {day.totalMinutes === 0 && (
-                              <div className="w-full bg-muted/30 rounded-lg" style={{ height: '4px' }} />
-                            )}
-                            {/* Stacked segments (bottom → top: tryout, latihan, materi) */}
-                            {day.tryoutMin > 0 && (
-                              <div
-                                className="w-full bg-amber-500/80 dark:bg-amber-500"
-                                style={{ height: `${tryoutH}px`, minHeight: tryoutH > 0 ? '3px' : '0' }}
-                              />
-                            )}
-                            {day.latihanMin > 0 && (
-                              <div
-                                className="w-full bg-emerald-500/80 dark:bg-emerald-500"
-                                style={{ height: `${latihanH}px`, minHeight: latihanH > 0 ? '3px' : '0' }}
-                              />
-                            )}
-                            {day.materiMin > 0 && (
-                              <div
-                                className="w-full bg-indigo-500/80 dark:bg-indigo-500 rounded-t-md"
-                                style={{ height: `${materiH}px`, minHeight: materiH > 0 ? '3px' : '0' }}
-                              />
-                            )}
+                            {day.totalMinutes === 0 && <div className="w-full bg-muted/30 rounded" style={{ height: '3px' }} />}
+                            {day.tryoutMin > 0 && <div className="w-full bg-amber-500/80 dark:bg-amber-500" style={{ height: `${tryoutH}px`, minHeight: '3px' }} />}
+                            {day.latihanMin > 0 && <div className="w-full bg-emerald-500/80 dark:bg-emerald-500" style={{ height: `${latihanH}px`, minHeight: '3px' }} />}
+                            {day.materiMin > 0 && <div className="w-full bg-indigo-500/80 dark:bg-indigo-500 rounded-t" style={{ height: `${materiH}px`, minHeight: '3px' }} />}
                           </div>
-
-                          {/* Day label */}
-                          <span className={`text-[11px] font-bold transition-colors ${
-                            isToday
-                              ? 'text-indigo-600 dark:text-indigo-400'
-                              : 'text-muted-foreground'
-                          }`}>
+                          <span className={`text-[10px] font-bold ${isToday ? 'text-indigo-600 dark:text-indigo-400' : 'text-muted-foreground'}`}>
                             {day.label}
                             {isToday && <span className="block h-1 w-1 rounded-full bg-indigo-500 mx-auto mt-0.5" />}
                           </span>
@@ -927,11 +900,9 @@ export default function DashboardPage() {
                       );
                     })}
                   </div>
-
-                  {/* Bottom summary row */}
                   {totalThisWeek === 0 && (
-                    <p className="text-center text-xs text-muted-foreground mt-3">
-                      Belum ada aktivitas belajar minggu ini. Yuk mulai belajar! 🎯
+                    <p className="text-center text-[11px] text-muted-foreground mt-2">
+                      Belum ada aktivitas minggu ini. Yuk mulai belajar! 🎯
                     </p>
                   )}
                 </CardContent>
@@ -939,10 +910,6 @@ export default function DashboardPage() {
             );
           })()}
 
-        </div>
-
-        {/* Right Side: Profile Summary & Tips */}
-        <div className="space-y-6">
           <Card className="bg-card border-border shadow-sm">
             <CardHeader>
               <CardTitle className="text-lg font-bold text-foreground">Akun Anda</CardTitle>
