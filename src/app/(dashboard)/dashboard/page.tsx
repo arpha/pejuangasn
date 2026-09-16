@@ -268,6 +268,17 @@ export default function DashboardPage() {
   // Reverse to get chronological order (oldest to newest)
   const chartAttempts = [...completedAttempts].slice(0, 5).reverse();
 
+  // Mock attempts untuk visual grafik di balik blur jika pengguna Free belum ada data
+  const effectiveChartAttempts = (!isPremium && chartAttempts.length < 2)
+    ? [
+        { score_total: 310, started_at: new Date(Date.now() - 4 * 86400000).toISOString() },
+        { score_total: 355, started_at: new Date(Date.now() - 3 * 86400000).toISOString() },
+        { score_total: 390, started_at: new Date(Date.now() - 2 * 86400000).toISOString() },
+        { score_total: 420, started_at: new Date(Date.now() - 1 * 86400000).toISOString() },
+        { score_total: 460, started_at: new Date().toISOString() },
+      ]
+    : chartAttempts;
+
   // Draw SVG lines/dots
   const svgWidth = 500;
   const svgHeight = 200;
@@ -281,9 +292,9 @@ export default function DashboardPage() {
   let areaPath = '';
   const coords: { x: number; y: number; score: number; date: string }[] = [];
 
-  if (chartAttempts.length >= 2) {
-    chartAttempts.forEach((attempt, index) => {
-      const x = paddingX + (index * (chartWidth / (chartAttempts.length - 1)));
+  if (effectiveChartAttempts.length >= 2) {
+    effectiveChartAttempts.forEach((attempt, index) => {
+      const x = paddingX + (index * (chartWidth / (effectiveChartAttempts.length - 1)));
       const y = paddingY + chartHeight - (attempt.score_total / maxScoreScale) * chartHeight;
       const dateStr = new Date(attempt.started_at).toLocaleDateString('id-ID', {
         day: 'numeric',
@@ -499,164 +510,206 @@ export default function DashboardPage() {
           {/* Card Grid: Analisis Performa & Tren SVG */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Performa per Kategori */}
-            <Card className="bg-card border-border shadow-sm">
-              <CardHeader className="pb-3">
+            <Card className="bg-card border-border shadow-sm overflow-hidden relative">
+              <CardHeader className="pb-3 border-b border-border/60 bg-muted/5">
                 <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
                   <BarChart2 className="h-5 w-5 text-indigo-600 dark:text-indigo-400" /> Analisis Performa Kategori
                 </CardTitle>
                 <CardDescription>Rata-rata skor Anda dibandingkan passing grade.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {/* TWK */}
-                <div className="space-y-1.5">
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="font-semibold text-foreground">TWK (Ambang Batas: 65)</span>
-                    <span className={`font-bold ${avgTwk >= 65 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-500'}`}>
-                      {avgTwk} / 150 ({avgTwk >= 65 ? 'Lolos' : 'Belum Lolos'})
-                    </span>
+              <div className="relative">
+                <CardContent className={`p-6 space-y-4 transition-all duration-300 ${
+                  !isPremium ? 'filter blur-[7px] select-none pointer-events-none opacity-40 grayscale-[20%]' : ''
+                }`}>
+                  {/* TWK */}
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="font-semibold text-foreground">TWK (Ambang Batas: 65)</span>
+                      <span className={`font-bold ${avgTwk >= 65 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-500'}`}>
+                        {avgTwk} / 150 ({avgTwk >= 65 ? 'Lolos' : 'Belum Lolos'})
+                      </span>
+                    </div>
+                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full rounded-full transition-all duration-500 ${avgTwk >= 65 ? 'bg-emerald-500' : 'bg-rose-500'}`}
+                        style={{ width: `${(avgTwk / 150) * 100}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div 
-                      className={`h-full rounded-full transition-all duration-500 ${avgTwk >= 65 ? 'bg-emerald-500' : 'bg-rose-500'}`}
-                      style={{ width: `${(avgTwk / 150) * 100}%` }}
-                    />
-                  </div>
-                </div>
 
-                {/* TIU */}
-                <div className="space-y-1.5">
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="font-semibold text-foreground">TIU (Ambang Batas: 80)</span>
-                    <span className={`font-bold ${avgTiu >= 80 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-500'}`}>
-                      {avgTiu} / 175 ({avgTiu >= 80 ? 'Lolos' : 'Belum Lolos'})
-                    </span>
+                  {/* TIU */}
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="font-semibold text-foreground">TIU (Ambang Batas: 80)</span>
+                      <span className={`font-bold ${avgTiu >= 80 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-500'}`}>
+                        {avgTiu} / 175 ({avgTiu >= 80 ? 'Lolos' : 'Belum Lolos'})
+                      </span>
+                    </div>
+                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full rounded-full transition-all duration-500 ${avgTiu >= 80 ? 'bg-emerald-500' : 'bg-rose-500'}`}
+                        style={{ width: `${(avgTiu / 175) * 100}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div 
-                      className={`h-full rounded-full transition-all duration-500 ${avgTiu >= 80 ? 'bg-emerald-500' : 'bg-rose-500'}`}
-                      style={{ width: `${(avgTiu / 175) * 100}%` }}
-                    />
-                  </div>
-                </div>
 
-                {/* TKP */}
-                <div className="space-y-1.5">
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="font-semibold text-foreground">TKP (Ambang Batas: 166)</span>
-                    <span className={`font-bold ${avgTkp >= 166 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-500'}`}>
-                      {avgTkp} / 225 ({avgTkp >= 166 ? 'Lolos' : 'Belum Lolos'})
-                    </span>
+                  {/* TKP */}
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="font-semibold text-foreground">TKP (Ambang Batas: 166)</span>
+                      <span className={`font-bold ${avgTkp >= 166 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-500'}`}>
+                        {avgTkp} / 225 ({avgTkp >= 166 ? 'Lolos' : 'Belum Lolos'})
+                      </span>
+                    </div>
+                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full rounded-full transition-all duration-500 ${avgTkp >= 166 ? 'bg-emerald-500' : 'bg-rose-500'}`}
+                        style={{ width: `${(avgTkp / 225) * 100}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div 
-                      className={`h-full rounded-full transition-all duration-500 ${avgTkp >= 166 ? 'bg-emerald-500' : 'bg-rose-500'}`}
-                      style={{ width: `${(avgTkp / 225) * 100}%` }}
-                    />
+                </CardContent>
+
+                {!isPremium && (
+                  <div className="absolute inset-0 z-10 flex items-center justify-center p-4">
+                    <Link 
+                      href="/profil?tab=paket"
+                      className="group inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-amber-500/15 hover:bg-amber-500/25 dark:bg-amber-500/20 dark:hover:bg-amber-500/30 text-amber-700 dark:text-amber-300 border-2 border-amber-500/40 hover:border-amber-500/70 backdrop-blur-md shadow-xl shadow-amber-500/10 hover:shadow-amber-500/20 transition-all duration-300 transform hover:scale-105 active:scale-95 cursor-pointer"
+                    >
+                      <div className="p-1.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 group-hover:bg-amber-500 group-hover:text-white transition-colors">
+                        <Lock className="h-4 w-4" />
+                      </div>
+                      <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider">
+                        Fitur Premium
+                      </span>
+                      <ChevronRight className="h-4 w-4 text-amber-600 dark:text-amber-400 group-hover:translate-x-1 transition-transform duration-300" />
+                    </Link>
                   </div>
-                </div>
-              </CardContent>
+                )}
+              </div>
             </Card>
 
             {/* Tren Skor SVG */}
-            <Card className="bg-card border-border shadow-sm">
-              <CardHeader className="pb-3">
+            <Card className="bg-card border-border shadow-sm overflow-hidden relative">
+              <CardHeader className="pb-3 border-b border-border/60 bg-muted/5">
                 <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
                   <TrendingUp className="h-5 w-5 text-indigo-600 dark:text-indigo-400" /> Tren Perkembangan Skor
                 </CardTitle>
                 <CardDescription>Grafik nilai dari 5 tryout terakhir.</CardDescription>
               </CardHeader>
-              <CardContent className="flex items-center justify-center p-3">
-                {chartAttempts.length < 2 ? (
-                  <div className="text-center py-8 text-muted-foreground text-xs">
-                    <TrendingUp className="h-8 w-8 mx-auto mb-2 text-muted-foreground/30" />
-                    Selesaikan minimal 2 tryout untuk melihat grafik tren skor Anda.
-                  </div>
-                ) : (
-                  <div className="w-full relative">
-                    <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="w-full h-auto overflow-visible">
-                      {/* Grid Lines */}
-                      {[100, 200, 300, 400, 500].map((gridScore) => {
-                        const y = paddingY + chartHeight - (gridScore / maxScoreScale) * chartHeight;
-                        return (
-                          <g key={gridScore}>
-                            <line 
-                              x1={paddingX} 
-                              y1={y} 
-                              x2={svgWidth - paddingX} 
-                              y2={y} 
-                              stroke="currentColor" 
-                              className="text-border/50"
-                              strokeDasharray="4 4"
+              <div className="relative">
+                <CardContent className={`flex items-center justify-center p-4 min-h-[220px] transition-all duration-300 ${
+                  !isPremium ? 'filter blur-[7px] select-none pointer-events-none opacity-40 grayscale-[20%]' : ''
+                }`}>
+                  {chartAttempts.length < 2 && isPremium ? (
+                    <div className="text-center py-8 text-muted-foreground text-xs">
+                      <TrendingUp className="h-8 w-8 mx-auto mb-2 text-muted-foreground/30" />
+                      Selesaikan minimal 2 tryout untuk melihat grafik tren skor Anda.
+                    </div>
+                  ) : (
+                    <div className="w-full relative">
+                      <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="w-full h-auto overflow-visible">
+                        {/* Grid Lines */}
+                        {[100, 200, 300, 400, 500].map((gridScore) => {
+                          const y = paddingY + chartHeight - (gridScore / maxScoreScale) * chartHeight;
+                          return (
+                            <g key={gridScore}>
+                              <line 
+                                x1={paddingX} 
+                                y1={y} 
+                                x2={svgWidth - paddingX} 
+                                y2={y} 
+                                stroke="currentColor" 
+                                className="text-border/50"
+                                strokeDasharray="4 4"
+                              />
+                              <text 
+                                x={paddingX - 10} 
+                                y={y + 4} 
+                                textAnchor="end" 
+                                className="fill-muted-foreground text-[10px] font-mono"
+                              >
+                                {gridScore}
+                              </text>
+                            </g>
+                          );
+                        })}
+
+                        {/* Area Path */}
+                        <path 
+                          d={areaPath} 
+                          fill="url(#grad)" 
+                          className="opacity-15 dark:opacity-20 text-indigo-600 dark:text-indigo-400"
+                          stroke="none"
+                        />
+
+                        {/* Line Path */}
+                        <path 
+                          d={pointsPath} 
+                          fill="none" 
+                          stroke="rgb(79, 70, 229)" 
+                          strokeWidth="3.5" 
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+
+                        {/* Gradients */}
+                        <defs>
+                          <linearGradient id="grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stopColor="rgb(99, 102, 241)" />
+                            <stop offset="100%" stopColor="rgb(99, 102, 241)" stopOpacity="0" />
+                          </linearGradient>
+                        </defs>
+
+                        {/* Dots and Labels */}
+                        {coords.map((c, i) => (
+                          <g key={i}>
+                            <circle 
+                              cx={c.x} 
+                              cy={c.y} 
+                              r="5" 
+                              className="fill-indigo-600 dark:fill-indigo-400 stroke-background stroke-2" 
                             />
                             <text 
-                              x={paddingX - 10} 
-                              y={y + 4} 
-                              textAnchor="end" 
-                              className="fill-muted-foreground text-[10px] font-mono"
+                              x={c.x} 
+                              y={c.y - 10} 
+                              textAnchor="middle" 
+                              className="fill-foreground text-[10px] font-bold"
                             >
-                              {gridScore}
+                              {c.score}
+                            </text>
+                            <text 
+                              x={c.x} 
+                              y={paddingY + chartHeight + 18} 
+                              textAnchor="middle" 
+                              className="fill-muted-foreground text-[9px] font-semibold"
+                            >
+                              {c.date}
                             </text>
                           </g>
-                        );
-                      })}
+                        ))}
+                      </svg>
+                    </div>
+                  )}
+                </CardContent>
 
-                      {/* Area Path */}
-                      <path 
-                        d={areaPath} 
-                        fill="url(#grad)" 
-                        className="opacity-15 dark:opacity-20 text-indigo-600 dark:text-indigo-400"
-                        stroke="none"
-                      />
-
-                      {/* Line Path */}
-                      <path 
-                        d={pointsPath} 
-                        fill="none" 
-                        stroke="rgb(79, 70, 229)" 
-                        strokeWidth="3.5" 
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-
-                      {/* Gradients */}
-                      <defs>
-                        <linearGradient id="grad" x1="0%" y1="0%" x2="0%" y2="100%">
-                          <stop offset="0%" stopColor="rgb(99, 102, 241)" />
-                          <stop offset="100%" stopColor="rgb(99, 102, 241)" stopOpacity="0" />
-                        </linearGradient>
-                      </defs>
-
-                      {/* Dots and Labels */}
-                      {coords.map((c, i) => (
-                        <g key={i}>
-                          <circle 
-                            cx={c.x} 
-                            cy={c.y} 
-                            r="5" 
-                            className="fill-indigo-600 dark:fill-indigo-400 stroke-background stroke-2" 
-                          />
-                          <text 
-                            x={c.x} 
-                            y={c.y - 10} 
-                            textAnchor="middle" 
-                            className="fill-foreground text-[10px] font-bold"
-                          >
-                            {c.score}
-                          </text>
-                          <text 
-                            x={c.x} 
-                            y={paddingY + chartHeight + 18} 
-                            textAnchor="middle" 
-                            className="fill-muted-foreground text-[9px] font-semibold"
-                          >
-                            {c.date}
-                          </text>
-                        </g>
-                      ))}
-                    </svg>
+                {!isPremium && (
+                  <div className="absolute inset-0 z-10 flex items-center justify-center p-4">
+                    <Link 
+                      href="/profil?tab=paket"
+                      className="group inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-amber-500/15 hover:bg-amber-500/25 dark:bg-amber-500/20 dark:hover:bg-amber-500/30 text-amber-700 dark:text-amber-300 border-2 border-amber-500/40 hover:border-amber-500/70 backdrop-blur-md shadow-xl shadow-amber-500/10 hover:shadow-amber-500/20 transition-all duration-300 transform hover:scale-105 active:scale-95 cursor-pointer"
+                    >
+                      <div className="p-1.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 group-hover:bg-amber-500 group-hover:text-white transition-colors">
+                        <Lock className="h-4 w-4" />
+                      </div>
+                      <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider">
+                        Fitur Premium
+                      </span>
+                      <ChevronRight className="h-4 w-4 text-amber-600 dark:text-amber-400 group-hover:translate-x-1 transition-transform duration-300" />
+                    </Link>
                   </div>
                 )}
-              </CardContent>
+              </div>
             </Card>
           </div>
 

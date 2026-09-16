@@ -271,7 +271,11 @@ export default function MaterialsPage() {
                   >
                     {/* Completion/Progress Status Badge at top right */}
                     <div className="absolute top-4 right-4 flex items-center gap-1.5">
-                      {isCompleted ? (
+                      {!isPremium ? (
+                        <span className="inline-flex items-center gap-1 bg-amber-500/10 border border-amber-500/25 text-amber-600 dark:text-amber-400 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full shadow-sm">
+                          <Lock className="h-3 w-3" /> Kuis & Progres Premium
+                        </span>
+                      ) : isCompleted ? (
                         <>
                           <span className="inline-flex items-center gap-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full shadow-sm">
                             <CheckCircle2 className="h-3 w-3" /> Selesai Dibaca

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { 
   ArrowLeft, 
   BookOpen, 
@@ -12,10 +13,12 @@ import {
   Trophy, 
   XCircle, 
   Play, 
-  ChevronRight,
-  RefreshCw,
-  HelpCircle,
-  AlertCircle
+  ChevronRight, 
+  RefreshCw, 
+  HelpCircle, 
+  AlertCircle,
+  Lock,
+  Crown
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -98,6 +101,7 @@ export default function MaterialDetailPage() {
   const router = useRouter();
   const slug = params.slug as string;
   const { profile } = useAuthStore();
+  const isPremium = profile?.subscription_status === 'PREMIUM';
 
   // Quiz States
   const [showQuiz, setShowQuiz] = useState(false);
@@ -160,6 +164,11 @@ export default function MaterialDetailPage() {
   // Pull 5 questions for this module
   const loadQuizQuestions = async () => {
     if (!activeMaterial) return;
+    if (!isPremium) {
+      toast.error('Kuis evaluasi modul hanya dapat diakses oleh member Premium.');
+      router.push('/profil?tab=paket');
+      return;
+    }
     setIsSaving(true);
     try {
       // 1. Try querying questions linked to this material
@@ -283,6 +292,11 @@ export default function MaterialDetailPage() {
   };
 
   const handleMarkAsRead = async () => {
+    if (!isPremium) {
+      toast.error('Kuis evaluasi modul hanya dapat diakses oleh member Premium.');
+      router.push('/profil?tab=paket');
+      return;
+    }
     // Simply trigger the quiz. Module progress is only set to completed when they get 5/5 score.
     await loadQuizQuestions();
   };
@@ -412,16 +426,19 @@ export default function MaterialDetailPage() {
               <span className={`inline-block text-xs font-bold px-2.5 py-0.5 rounded-full border ${categoryColor}`}>
                 {activeMaterial.category}
               </span>
-              {progress?.is_completed && (
+              {!isPremium ? (
+                <span className="inline-flex items-center gap-1 bg-amber-500/10 border border-amber-500/25 text-amber-600 dark:text-amber-400 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full shadow-sm">
+                  <Lock className="h-3.5 w-3.5" /> Kuis & Progres Premium
+                </span>
+              ) : progress?.is_completed ? (
                 <span className="inline-flex items-center gap-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full shadow-sm">
                   <CheckCircle2 className="h-3.5 w-3.5" /> Selesai Dibaca & Kuis Lulus
                 </span>
-              )}
-              {progress?.quiz_completed && !progress?.is_completed && (
+              ) : progress?.quiz_completed ? (
                 <span className="inline-flex items-center gap-1 bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full shadow-sm">
                   <AlertCircle className="h-3.5 w-3.5" /> Kuis Gagal ({progress.quiz_score}/5)
                 </span>
-              )}
+              ) : null}
             </div>
             <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight leading-tight">
               {activeMaterial.title}
@@ -442,60 +459,90 @@ export default function MaterialDetailPage() {
 
           {/* Progress Action Bottom Tray */}
           {profile?.id && (
-            <Card className="bg-gradient-to-r from-indigo-500/[0.03] to-transparent border border-border mt-8 rounded-2xl overflow-hidden shadow-md">
+            <Card className={`mt-8 rounded-2xl overflow-hidden shadow-md border ${
+              !isPremium 
+                ? 'bg-gradient-to-r from-amber-500/[0.07] via-amber-500/[0.02] to-transparent border-amber-500/30' 
+                : 'bg-gradient-to-r from-indigo-500/[0.03] to-transparent border-border'
+            }`}>
               <CardContent className="p-6 flex flex-col md:flex-row justify-between items-center gap-5">
-                <div className="space-y-1 text-center md:text-left">
-                  {progress?.is_completed ? (
-                    <>
-                      <h4 className="text-base font-black text-foreground flex items-center justify-center md:justify-start gap-1.5 text-emerald-600 dark:text-emerald-400">
-                        <CheckCircle2 className="h-5 w-5" /> Modul ini telah Selesai
-                      </h4>
-                      <p className="text-xs text-muted-foreground font-medium">
-                        Anda telah berhasil menjawab 5/5 soal dengan benar pada kuis evaluasi.
+                {!isPremium ? (
+                  <>
+                    <div className="space-y-1.5 text-center md:text-left">
+                      <div className="flex items-center justify-center md:justify-start gap-2">
+                        <div className="p-1.5 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400">
+                          <Crown className="h-4 w-4" />
+                        </div>
+                        <h4 className="text-base font-black text-foreground">
+                          Uji Pemahaman dengan Kuis Evaluasi
+                        </h4>
+                      </div>
+                      <p className="text-xs text-muted-foreground font-medium max-w-xl leading-relaxed">
+                        Fitur kuis evaluasi modul dan pencatatan ketuntasan belajar eksklusif untuk member Premium. Tingkatkan akun Anda untuk menguji pemahaman konsep dan memantau kemajuan belajar SKD secara otomatis.
                       </p>
-                    </>
-                  ) : (
-                    <>
-                      <h4 className="text-base font-black text-foreground">
-                        {progress?.quiz_completed ? 'Modul Belum Selesai (Kuis Gagal)' : 'Selesai membaca materi ini?'}
-                      </h4>
-                      <p className="text-xs text-muted-foreground font-medium">
-                        {progress?.quiz_completed 
-                          ? `Skor kuis terakhir Anda: ${progress.quiz_score}/5. Kerjakan kuis kembali dan dapatkan 5/5 benar untuk menyelesaikan modul.`
-                          : 'Kerjakan kuis evaluasi 5 soal modul dan dapatkan skor sempurna (5/5 benar) untuk menyelesaikan modul.'
-                        }
-                      </p>
-                    </>
-                  )}
-                </div>
+                    </div>
 
-                <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto shrink-0">
-                  {progress?.is_completed ? (
-                    <Button 
-                      onClick={loadQuizQuestions} 
-                      disabled={isSaving}
-                      className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-11 px-6 rounded-xl flex items-center justify-center gap-2 shadow-sm"
-                    >
-                      <RefreshCw className="h-4 w-4" /> Ulangi Kuis Modul
-                    </Button>
-                  ) : (
-                    <Button 
-                      onClick={handleMarkAsRead} 
-                      disabled={isSaving}
-                      className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-11 px-6 rounded-xl flex items-center justify-center gap-2 shadow-sm"
-                    >
-                      {isSaving ? (
+                    <Link href="/profil?tab=paket" className="w-full sm:w-auto shrink-0">
+                      <Button className="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-slate-950 font-black h-11 px-6 rounded-xl flex items-center justify-center gap-2 shadow-sm transition-all hover:scale-105 active:scale-95 text-xs sm:text-sm">
+                        <Crown className="h-4 w-4" /> Buka Akses Premium <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <div className="space-y-1 text-center md:text-left">
+                      {progress?.is_completed ? (
                         <>
-                          <Loader2 className="h-4.5 w-4.5 animate-spin" /> Memuat...
+                          <h4 className="text-base font-black text-foreground flex items-center justify-center md:justify-start gap-1.5 text-emerald-600 dark:text-emerald-400">
+                            <CheckCircle2 className="h-5 w-5" /> Modul ini telah Selesai
+                          </h4>
+                          <p className="text-xs text-muted-foreground font-medium">
+                            Anda telah berhasil menjawab 5/5 soal dengan benar pada kuis evaluasi.
+                          </p>
                         </>
                       ) : (
                         <>
-                          {progress?.quiz_completed ? 'Ulangi Kuis Modul' : 'Mulai Kuis Modul'} <Play className="h-4 w-4 fill-current" />
+                          <h4 className="text-base font-black text-foreground">
+                            {progress?.quiz_completed ? 'Modul Belum Selesai (Kuis Gagal)' : 'Selesai membaca materi ini?'}
+                          </h4>
+                          <p className="text-xs text-muted-foreground font-medium">
+                            {progress?.quiz_completed 
+                              ? `Skor kuis terakhir Anda: ${progress.quiz_score}/5. Kerjakan kuis kembali dan dapatkan 5/5 benar untuk menyelesaikan modul.`
+                              : 'Kerjakan kuis evaluasi 5 soal modul dan dapatkan skor sempurna (5/5 benar) untuk menyelesaikan modul.'
+                            }
+                          </p>
                         </>
                       )}
-                    </Button>
-                  )}
-                </div>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto shrink-0">
+                      {progress?.is_completed ? (
+                        <Button 
+                          onClick={loadQuizQuestions} 
+                          disabled={isSaving}
+                          className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-11 px-6 rounded-xl flex items-center justify-center gap-2 shadow-sm"
+                        >
+                          <RefreshCw className="h-4 w-4" /> Ulangi Kuis Modul
+                        </Button>
+                      ) : (
+                        <Button 
+                          onClick={handleMarkAsRead} 
+                          disabled={isSaving}
+                          className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-11 px-6 rounded-xl flex items-center justify-center gap-2 shadow-sm"
+                        >
+                          {isSaving ? (
+                            <>
+                              <Loader2 className="h-4.5 w-4.5 animate-spin" /> Memuat...
+                            </>
+                          ) : (
+                            <>
+                              {progress?.quiz_completed ? 'Ulangi Kuis Modul' : 'Mulai Kuis Modul'} <Play className="h-4 w-4 fill-current" />
+                            </>
+                          )}
+                        </Button>
+                      )}
+                    </div>
+                  </>
+                )}
               </CardContent>
             </Card>
           )}
