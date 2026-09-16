@@ -739,39 +739,6 @@ export default function DashboardPage() {
 
         {/* Right Side: Profile Summary & Tips */}
         <div className="space-y-6">
-          <Card className="bg-card border-border shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-lg font-bold text-foreground">Akun Anda</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 bg-indigo-500/10 dark:bg-indigo-500/20 rounded-full flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0">
-                  <User className="h-5 w-5" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h4 className="text-sm font-semibold text-foreground truncate">{profile?.full_name}</h4>
-                  <p className="text-xs text-muted-foreground truncate">{profile?.email}</p>
-                  {profile?.whatsapp && (
-                    <p className="text-xs text-muted-foreground truncate flex items-center gap-1 mt-0.5">
-                      <Phone className="h-3 w-3 text-emerald-600 dark:text-emerald-400" /> {profile.whatsapp}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div className="border-t border-border pt-4 flex justify-between items-center text-sm">
-                <span className="text-muted-foreground">Tipe Keanggotaan</span>
-                <span className={`font-bold flex items-center gap-1 ${
-                  profile?.subscription_status === 'PREMIUM' ? 'text-amber-600 dark:text-amber-400' : 'text-muted-foreground'
-                }`}>
-                  {profile?.subscription_status === 'PREMIUM' && <Crown className="h-4 w-4 text-amber-500" />}
-                  {profile?.subscription_status}
-                </span>
-              </div>
-
-
-            </CardContent>
-          </Card>
 
           {/* Performa per Kategori */}
           <Card className="bg-card border-border shadow-sm overflow-hidden relative">
