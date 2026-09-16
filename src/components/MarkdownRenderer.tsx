@@ -104,7 +104,10 @@ export default function MarkdownRenderer({ text, className = '' }: MarkdownRende
       if (token.startsWith('`') && token.endsWith('`')) {
         const code = token.slice(1, -1);
         return (
-          <code key={index} className="bg-muted px-1.5 py-0.5 rounded text-xs font-mono font-bold text-rose-500">
+          <code 
+            key={index} 
+            className="bg-neutral-800 text-neutral-200 dark:bg-neutral-900 dark:text-neutral-100 border border-neutral-700/60 dark:border-neutral-800 px-2 py-0.5 rounded-md text-xs sm:text-sm font-mono tracking-wide font-medium shadow-sm inline-block my-0.5"
+          >
             {code}
           </code>
         );
@@ -279,6 +282,60 @@ export default function MarkdownRenderer({ text, className = '' }: MarkdownRende
     if (trimmed === '---' || trimmed === '***') {
       flushBlock(blockKey++);
       blocks.push(<hr key={blockKey++} className="border-t border-border my-6" />);
+      continue;
+    }
+
+    // Check for Custom Example Block (:::contoh or :::example or :::pola)
+    if (trimmed.startsWith(':::')) {
+      const tag = trimmed.slice(3).trim().toLowerCase();
+      if (tag === 'contoh' || tag === 'example' || tag === 'pola' || tag === 'box' || tag === '') {
+        flushBlock(blockKey++);
+        const exampleLines: string[] = [];
+        i++;
+        while (i < lines.length && !lines[i].trim().startsWith(':::')) {
+          exampleLines.push(lines[i]);
+          i++;
+        }
+        
+        blocks.push(
+          <div 
+            key={blockKey++} 
+            className="my-4 pl-4 border-l-2 border-dotted border-neutral-600 dark:border-neutral-500 space-y-2 text-foreground"
+          >
+            {exampleLines.map((eLine, eIdx) => {
+              if (eLine.trim() === '') return <div key={eIdx} className="h-1.5" />;
+              return (
+                <div key={eIdx} className="leading-relaxed text-sm md:text-base text-foreground">
+                  {renderInline(eLine)}
+                </div>
+              );
+            })}
+          </div>
+        );
+        continue;
+      }
+    }
+
+    // Check for lines starting with ": " (Dotted Callout format)
+    if (trimmed.startsWith(': ')) {
+      flushBlock(blockKey++);
+      const exampleLines: string[] = [trimmed.slice(2)];
+      while (i + 1 < lines.length && lines[i + 1].trim().startsWith(': ')) {
+        i++;
+        exampleLines.push(lines[i].trim().slice(2));
+      }
+      blocks.push(
+        <div 
+          key={blockKey++} 
+          className="my-4 pl-4 border-l-2 border-dotted border-neutral-600 dark:border-neutral-500 space-y-2 text-foreground"
+        >
+          {exampleLines.map((eLine, eIdx) => (
+            <div key={eIdx} className="leading-relaxed text-sm md:text-base text-foreground">
+              {renderInline(eLine)}
+            </div>
+          ))}
+        </div>
+      );
       continue;
     }
 

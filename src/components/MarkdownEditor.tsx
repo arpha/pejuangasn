@@ -3,10 +3,11 @@ import React, { useState, useRef } from 'react';
 import { 
   Bold, Italic, Heading2, List, ListOrdered, 
   Quote, Code, Link as LinkIcon, Image as ImageIcon, 
-  Table as TableIcon, Eye, Edit3
+  Table as TableIcon, Eye, Edit3, Sparkles
 } from 'lucide-react';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
 import TableBuilderModal from '@/components/TableBuilderModal';
+import ExampleBuilderModal from '@/components/ExampleBuilderModal';
 
 interface MarkdownEditorProps {
   value: string;
@@ -29,6 +30,7 @@ export default function MarkdownEditor({
 }: MarkdownEditorProps) {
   const [activeTab, setActiveTab] = useState<'write' | 'preview'>('write');
   const [isTableModalOpen, setIsTableModalOpen] = useState<boolean>(false);
+  const [isExampleModalOpen, setIsExampleModalOpen] = useState<boolean>(false);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const insertMarkdown = (before: string, after: string = '') => {
@@ -105,6 +107,31 @@ export default function MarkdownEditor({
       if (!textarea) return;
       textarea.focus();
       const newPos = start + mdTable.length;
+      textarea.setSelectionRange(newPos, newPos);
+      textarea.scrollTop = savedScrollTop;
+    }, 0);
+  };
+
+  const handleInsertExampleMarkdown = (exampleMd: string) => {
+    const textarea = textareaRef.current || (document.getElementById(id) as HTMLTextAreaElement);
+    if (!textarea) {
+      onChange(value + (value.endsWith('\n\n') ? '' : '\n\n') + exampleMd);
+      return;
+    }
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const savedScrollTop = textarea.scrollTop;
+    const currentText = textarea.value;
+
+    const formattedMd = (start > 0 && !currentText.slice(0, start).endsWith('\n\n') ? '\n\n' : '') + exampleMd + '\n';
+    const newText = currentText.substring(0, start) + formattedMd + currentText.substring(end);
+    onChange(newText);
+
+    setTimeout(() => {
+      if (!textarea) return;
+      textarea.focus();
+      const newPos = start + formattedMd.length;
       textarea.setSelectionRange(newPos, newPos);
       textarea.scrollTop = savedScrollTop;
     }, 0);
@@ -247,6 +274,18 @@ export default function MarkdownEditor({
               <TableIcon className="h-4 w-4" />
               <span>+ Tabel</span>
             </button>
+
+            {/* EXAMPLE / PATTERN BUILDER BUTTON */}
+            <button
+              type="button"
+              onMouseDown={handleToolbarButtonMouseDown}
+              onClick={() => setIsExampleModalOpen(true)}
+              title="Buat Contoh Soal / Pola Analogi / Silogisme"
+              className="flex items-center gap-1.5 px-2 py-1 text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 rounded-lg transition-colors ml-1"
+            >
+              <Sparkles className="h-4 w-4" />
+              <span>+ Pola / Contoh</span>
+            </button>
           </div>
         )}
       </div>
@@ -282,6 +321,13 @@ export default function MarkdownEditor({
         isOpen={isTableModalOpen}
         onClose={() => setIsTableModalOpen(false)}
         onInsertTable={handleInsertTableMarkdown}
+      />
+
+      {/* Example / Pattern Builder Modal */}
+      <ExampleBuilderModal
+        isOpen={isExampleModalOpen}
+        onClose={() => setIsExampleModalOpen(false)}
+        onInsertExample={handleInsertExampleMarkdown}
       />
     </div>
   );
