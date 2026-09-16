@@ -147,7 +147,7 @@ export default function MaterialsPage() {
       {/* Header section with Stats */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-2">
         <div className="space-y-1">
-          <h1 className="text-3xl font-extrabold text-foreground tracking-tight bg-gradient-to-r from-indigo-600 to-indigo-400 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-500 to-indigo-300 dark:from-white dark:to-indigo-200 bg-clip-text text-transparent">
             Materi Pembelajaran SKD
           </h1>
           <p className="text-muted-foreground text-sm max-w-xl">
