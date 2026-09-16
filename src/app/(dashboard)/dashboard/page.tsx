@@ -197,6 +197,59 @@ export default function DashboardPage() {
   const maxScore = completedAttempts.length > 0 ? Math.max(...completedAttempts.map((a) => a.score_total)) : 0;
   const passedAttempts = completedAttempts.filter((a) => a.is_passed).length;
 
+  // ── Bar Chart: Aktivitas Belajar 7 Hari Terakhir ──────────────────────────
+  const weeklyChartData = useMemo(() => {
+    const DAY_LABELS = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+    const today = new Date();
+    // Build array of last 7 days (oldest → newest)
+    const days = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(today);
+      d.setDate(today.getDate() - (6 - i));
+      return {
+        label: DAY_LABELS[d.getDay()],
+        date: d.toISOString().slice(0, 10), // YYYY-MM-DD
+        materi: 0,   // seconds
+        latihan: 0,
+        tryout: 0,
+      };
+    });
+
+    studyLogs.forEach((log) => {
+      const logDate = new Date(log.created_at).toISOString().slice(0, 10);
+      const day = days.find((d) => d.date === logDate);
+      if (!day) return;
+      const dur = log.duration_seconds || 0;
+      if (log.activity_type === 'MATERI') day.materi += dur;
+      else if (log.activity_type === 'LATIHAN') day.latihan += dur;
+      else if (log.activity_type === 'TRYOUT') day.tryout += dur;
+    });
+
+    // Also account for completed exam attempts that might not be in study_logs
+    completedAttempts.forEach((att) => {
+      if (!att.started_at || !att.completed_at) return;
+      const attDate = new Date(att.started_at).toISOString().slice(0, 10);
+      const day = days.find((d) => d.date === attDate);
+      if (!day) return;
+      const hasTryoutLog = studyLogs.some(
+        (l) => l.activity_type === 'TRYOUT' && new Date(l.created_at).toISOString().slice(0, 10) === attDate
+      );
+      if (!hasTryoutLog) {
+        const dur = Math.floor(
+          (new Date(att.completed_at).getTime() - new Date(att.started_at).getTime()) / 1000
+        );
+        if (dur > 0 && dur < 10800) day.tryout += dur;
+      }
+    });
+
+    return days.map((d) => ({
+      ...d,
+      totalMinutes: Math.round((d.materi + d.latihan + d.tryout) / 60),
+      materiMin: Math.round(d.materi / 60),
+      latihanMin: Math.round(d.latihan / 60),
+      tryoutMin: Math.round(d.tryout / 60),
+    }));
+  }, [studyLogs, completedAttempts]);
+
   const totalCompleted = completedAttempts.length;
   const avgTwk = totalCompleted > 0 ? Math.round(completedAttempts.reduce((acc, curr) => acc + (curr.score_twk || 0), 0) / totalCompleted) : 0;
   const avgTiu = totalCompleted > 0 ? Math.round(completedAttempts.reduce((acc, curr) => acc + (curr.score_tiu || 0), 0) / totalCompleted) : 0;
@@ -774,6 +827,117 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
           )}
+
+          {/* ── Bar Chart: Aktivitas Belajar 7 Hari Terakhir ────────────────── */}
+          {(() => {
+            const maxMin = Math.max(...weeklyChartData.map(d => d.totalMinutes), 30);
+            const todayStr = new Date().toISOString().slice(0, 10);
+            const totalThisWeek = weeklyChartData.reduce((s, d) => s + d.totalMinutes, 0);
+            const BAR_H = 120; // px max bar height
+            return (
+              <Card className="bg-card border-border shadow-sm overflow-hidden">
+                <CardHeader className="pb-3 border-b border-border/60 bg-muted/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <div className="space-y-1">
+                    <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
+                      <BarChart2 className="h-5 w-5 text-indigo-500" />
+                      Aktivitas Belajar 7 Hari Terakhir
+                    </CardTitle>
+                    <CardDescription>
+                      Total minggu ini: <strong className="text-foreground">{totalThisWeek} menit</strong> &nbsp;·&nbsp; Materi, Latihan &amp; Tryout
+                    </CardDescription>
+                  </div>
+                  {/* Legend */}
+                  <div className="flex items-center gap-3 text-[10px] font-semibold text-muted-foreground shrink-0">
+                    <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-sm bg-indigo-500 inline-block" />Materi</span>
+                    <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-sm bg-emerald-500 inline-block" />Latihan</span>
+                    <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-sm bg-amber-500 inline-block" />Tryout</span>
+                  </div>
+                </CardHeader>
+
+                <CardContent className="p-4 sm:p-6 pt-4">
+                  <div className="flex items-end justify-between gap-1.5 sm:gap-3" style={{ height: `${BAR_H + 36}px` }}>
+                    {weeklyChartData.map((day, i) => {
+                      const isToday = day.date === todayStr;
+                      const barTotalH = maxMin > 0 ? Math.max((day.totalMinutes / maxMin) * BAR_H, day.totalMinutes > 0 ? 4 : 0) : 0;
+                      const materiH = day.totalMinutes > 0 ? (day.materiMin / day.totalMinutes) * barTotalH : 0;
+                      const latihanH = day.totalMinutes > 0 ? (day.latihanMin / day.totalMinutes) * barTotalH : 0;
+                      const tryoutH = barTotalH - materiH - latihanH;
+
+                      return (
+                        <div key={i} className="flex-1 flex flex-col items-center gap-1 group relative">
+                          {/* Tooltip */}
+                          {day.totalMinutes > 0 && (
+                            <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-20 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 w-28">
+                              <div className="bg-card border border-border rounded-xl shadow-lg px-2.5 py-2 text-[10px] space-y-1">
+                                <p className="font-bold text-foreground text-center border-b border-border pb-1 mb-1">{day.label} · {day.totalMinutes} mnt</p>
+                                {day.materiMin > 0 && <p className="flex justify-between"><span className="text-indigo-500">Materi</span><span>{day.materiMin} mnt</span></p>}
+                                {day.latihanMin > 0 && <p className="flex justify-between"><span className="text-emerald-500">Latihan</span><span>{day.latihanMin} mnt</span></p>}
+                                {day.tryoutMin > 0 && <p className="flex justify-between"><span className="text-amber-500">Tryout</span><span>{day.tryoutMin} mnt</span></p>}
+                              </div>
+                              {/* Arrow */}
+                              <div className="w-2 h-2 bg-card border-r border-b border-border rotate-45 mx-auto -mt-1" />
+                            </div>
+                          )}
+
+                          {/* Minute label */}
+                          <span className={`text-[9px] font-bold mb-0.5 transition-colors ${day.totalMinutes > 0 ? 'text-foreground' : 'text-transparent'}`}>
+                            {day.totalMinutes}
+                          </span>
+
+                          {/* Stacked Bar */}
+                          <div
+                            className="w-full rounded-t-lg overflow-hidden flex flex-col-reverse cursor-pointer transition-all duration-300 group-hover:brightness-110"
+                            style={{ height: `${BAR_H}px`, justifyContent: 'flex-start' }}
+                          >
+                            {/* Empty state */}
+                            {day.totalMinutes === 0 && (
+                              <div className="w-full bg-muted/30 rounded-lg" style={{ height: '4px' }} />
+                            )}
+                            {/* Stacked segments (bottom → top: tryout, latihan, materi) */}
+                            {day.tryoutMin > 0 && (
+                              <div
+                                className="w-full bg-amber-500/80 dark:bg-amber-500"
+                                style={{ height: `${tryoutH}px`, minHeight: tryoutH > 0 ? '3px' : '0' }}
+                              />
+                            )}
+                            {day.latihanMin > 0 && (
+                              <div
+                                className="w-full bg-emerald-500/80 dark:bg-emerald-500"
+                                style={{ height: `${latihanH}px`, minHeight: latihanH > 0 ? '3px' : '0' }}
+                              />
+                            )}
+                            {day.materiMin > 0 && (
+                              <div
+                                className="w-full bg-indigo-500/80 dark:bg-indigo-500 rounded-t-md"
+                                style={{ height: `${materiH}px`, minHeight: materiH > 0 ? '3px' : '0' }}
+                              />
+                            )}
+                          </div>
+
+                          {/* Day label */}
+                          <span className={`text-[11px] font-bold transition-colors ${
+                            isToday
+                              ? 'text-indigo-600 dark:text-indigo-400'
+                              : 'text-muted-foreground'
+                          }`}>
+                            {day.label}
+                            {isToday && <span className="block h-1 w-1 rounded-full bg-indigo-500 mx-auto mt-0.5" />}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Bottom summary row */}
+                  {totalThisWeek === 0 && (
+                    <p className="text-center text-xs text-muted-foreground mt-3">
+                      Belum ada aktivitas belajar minggu ini. Yuk mulai belajar! 🎯
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })()}
 
         </div>
 
