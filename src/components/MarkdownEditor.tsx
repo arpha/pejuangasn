@@ -3,7 +3,7 @@ import React, { useState, useRef } from 'react';
 import { 
   Bold, Italic, Heading2, List, ListOrdered, 
   Quote, Code, Link as LinkIcon, Image as ImageIcon, 
-  Table as TableIcon, Eye, Edit3, Sparkles
+  Table as TableIcon, Eye, Edit3, Sparkles, Boxes
 } from 'lucide-react';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
 import TableBuilderModal from '@/components/TableBuilderModal';
@@ -132,6 +132,38 @@ export default function MarkdownEditor({
       if (!textarea) return;
       textarea.focus();
       const newPos = start + formattedMd.length;
+      textarea.setSelectionRange(newPos, newPos);
+      textarea.scrollTop = savedScrollTop;
+    }, 0);
+  };
+
+  const handleInsertDiagram = () => {
+    const template = `\n\`\`\`
+[ PEMETAAN DIAGRAM VENN ]
+
+1. Semua A adalah B         2. Sebagian A adalah B
++-------------------+       +-------------------+
+|   +-----+         |       |   +---+---+       |
+|   |  A  |    B    |       |   | A | B |       |
+|   +-----+         |       |   +---+---+       |
++-------------------+       +-------------------+
+  (A berada di dalam B)       (A dan B beririsan)
+\`\`\`\n`;
+    const textarea = textareaRef.current || (document.getElementById(id) as HTMLTextAreaElement);
+    if (!textarea) {
+      onChange(value + template);
+      return;
+    }
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const savedScrollTop = textarea.scrollTop;
+    const currentText = textarea.value;
+    const newText = currentText.substring(0, start) + template + currentText.substring(end);
+    onChange(newText);
+    setTimeout(() => {
+      if (!textarea) return;
+      textarea.focus();
+      const newPos = start + template.length;
       textarea.setSelectionRange(newPos, newPos);
       textarea.scrollTop = savedScrollTop;
     }, 0);
@@ -285,6 +317,18 @@ export default function MarkdownEditor({
             >
               <Sparkles className="h-4 w-4" />
               <span>+ Pola / Contoh</span>
+            </button>
+
+            {/* VENN DIAGRAM BUTTON */}
+            <button
+              type="button"
+              onMouseDown={handleToolbarButtonMouseDown}
+              onClick={handleInsertDiagram}
+              title="Sisipkan Template Diagram Venn (Monospace)"
+              className="flex items-center gap-1.5 px-2 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 rounded-lg transition-colors ml-1"
+            >
+              <Boxes className="h-4 w-4" />
+              <span>+ Diagram</span>
             </button>
           </div>
         )}

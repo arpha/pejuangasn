@@ -249,6 +249,32 @@ export default function MarkdownRenderer({ text, className = '' }: MarkdownRende
       continue;
     }
 
+    // Check for Fenced Code Block / Diagram (``` or ~~~)
+    if (trimmed.startsWith('```') || trimmed.startsWith('~~~')) {
+      flushBlock(blockKey++);
+      const fenceMarker = trimmed.startsWith('```') ? '```' : '~~~';
+      const lang = trimmed.slice(3).trim();
+      const codeLines: string[] = [];
+      i++;
+      while (i < lines.length && !lines[i].trim().startsWith(fenceMarker)) {
+        codeLines.push(lines[i]);
+        i++;
+      }
+      blocks.push(
+        <div key={blockKey++} className="my-5 rounded-2xl overflow-hidden border border-neutral-800/80 bg-[#12141a] shadow-md">
+          {lang && (
+            <div className="px-4 py-1.5 text-[11px] font-mono font-semibold tracking-wider uppercase text-neutral-400 bg-neutral-900/90 border-b border-neutral-800 flex items-center justify-between">
+              <span>{lang}</span>
+            </div>
+          )}
+          <pre className="p-4 sm:p-5 overflow-x-auto text-xs sm:text-sm font-mono text-neutral-100 leading-relaxed tracking-wide whitespace-pre font-medium selection:bg-indigo-500 selection:text-white">
+            <code>{codeLines.join('\n')}</code>
+          </pre>
+        </div>
+      );
+      continue;
+    }
+
     // Check for Headings
     if (trimmed.startsWith('# ')) {
       flushBlock(blockKey++);
