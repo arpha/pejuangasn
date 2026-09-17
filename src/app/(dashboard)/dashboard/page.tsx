@@ -563,7 +563,7 @@ export default function DashboardPage() {
 
 
           {/* Rekomendasi Belajar Pintar */}
-          {totalCompleted > 0 && (
+          {(totalCompleted > 0 || !isPremium) && (
             <Card className="bg-card border-border shadow-sm overflow-hidden relative bg-gradient-to-br from-indigo-500/[0.02] via-transparent to-amber-500/[0.02]">
               <div className="absolute top-0 right-0 h-24 w-24 bg-gradient-to-bl from-indigo-500/10 via-transparent to-transparent rounded-bl-full pointer-events-none" />
               <CardHeader className="pb-2">
@@ -572,55 +572,80 @@ export default function DashboardPage() {
                 </CardTitle>
                 <CardDescription>Berdasarkan analisis hasil tryout terendah Anda.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="p-4 border border-indigo-500/15 dark:border-indigo-500/30 bg-indigo-500/5 rounded-xl space-y-2">
-                  <h4 className="font-bold text-foreground text-sm flex items-center gap-1.5 text-indigo-600 dark:text-indigo-400">
-                    Rekomendasi Utama: Pelajari {recommendations[lowestCategory].title}
-                  </h4>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    {recommendations[lowestCategory].desc}
-                  </p>
-                  <div className="pt-2 flex flex-wrap gap-2">
-                    {recommendations[lowestCategory].topic.split(', ').map((topic, index) => (
-                      <span key={index} className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-muted border border-border text-muted-foreground">
-                        {topic}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {weakSubCategories.length > 0 && (
-                  <div className="pt-2 space-y-2">
-                    <p className="text-xs font-bold text-foreground flex items-center gap-1">
-                      ⚠️ Sub-topik Lemah Anda (Akurasi &lt; 80%):
+              <div className="relative">
+                <CardContent className={`p-6 space-y-4 transition-all duration-300 ${
+                  !isPremium ? 'filter blur-[7px] select-none pointer-events-none opacity-40 grayscale-[20%]' : ''
+                }`}>
+                  <div className="p-4 border border-indigo-500/15 dark:border-indigo-500/30 bg-indigo-500/5 rounded-xl space-y-2">
+                    <h4 className="font-bold text-foreground text-sm flex items-center gap-1.5 text-indigo-600 dark:text-indigo-400">
+                      Rekomendasi Utama: Pelajari {recommendations[lowestCategory].title}
+                    </h4>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      {recommendations[lowestCategory].desc}
                     </p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {weakSubCategories.map((sub, index) => (
-                        <div key={index} className="p-3 bg-muted/40 border border-border rounded-lg space-y-1">
-                          <div className="flex justify-between items-center text-xs">
-                            <span className="font-semibold text-foreground truncate">{sub.name} ({sub.category})</span>
-                            <span className="font-bold text-rose-500">{sub.accuracy}% Akurasi</span>
-                          </div>
-                          <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                            <div 
-                              className="h-full bg-rose-500 rounded-full transition-all"
-                              style={{ width: `${sub.accuracy}%` }}
-                            />
-                          </div>
-                        </div>
+                    <div className="pt-2 flex flex-wrap gap-2">
+                      {recommendations[lowestCategory].topic.split(', ').map((topic, index) => (
+                        <span key={index} className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-muted border border-border text-muted-foreground">
+                          {topic}
+                        </span>
                       ))}
                     </div>
                   </div>
-                )}
 
-                <div className="flex justify-end pt-2">
-                  <Link href="/materi">
-                    <Button className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-10 px-5 text-sm flex items-center gap-2 shadow-sm rounded-xl transition-all duration-200">
-                      Buka Modul Belajar <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
+                  {(weakSubCategories.length > 0 || !isPremium) && (
+                    <div className="pt-2 space-y-2">
+                      <p className="text-xs font-bold text-foreground flex items-center gap-1">
+                        ⚠️ Sub-topik Lemah Anda (Akurasi &lt; 80%):
+                      </p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {(weakSubCategories.length > 0 ? weakSubCategories : [
+                          { name: 'Anti Radikalisme', category: 'TKP', accuracy: 0 },
+                          { name: 'Deret', category: 'TIU', accuracy: 0 },
+                          { name: 'Nasionalisme', category: 'TWK', accuracy: 0 }
+                        ]).map((sub, index) => (
+                          <div key={index} className="p-3 bg-muted/40 border border-border rounded-lg space-y-1">
+                            <div className="flex justify-between items-center text-xs">
+                              <span className="font-semibold text-foreground truncate">{sub.name} ({sub.category})</span>
+                              <span className="font-bold text-rose-500">{sub.accuracy}% Akurasi</span>
+                            </div>
+                            <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                              <div 
+                                className="h-full bg-rose-500 rounded-full transition-all"
+                                style={{ width: `${sub.accuracy}%` }}
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex justify-end pt-2">
+                    <Link href="/materi">
+                      <Button className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-10 px-5 text-sm flex items-center gap-2 shadow-sm rounded-xl transition-all duration-200">
+                        Buka Modul Belajar <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </Link>
+                  </div>
+                </CardContent>
+
+                {!isPremium && (
+                  <div className="absolute inset-0 z-10 flex items-center justify-center p-4">
+                    <Link 
+                      href="/profil?tab=paket"
+                      className="group inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-amber-500/15 hover:bg-amber-500/25 dark:bg-amber-500/20 dark:hover:bg-amber-500/30 text-amber-700 dark:text-amber-300 border-2 border-amber-500/40 hover:border-amber-500/70 backdrop-blur-md shadow-xl shadow-amber-500/10 hover:shadow-amber-500/20 transition-all duration-300 transform hover:scale-105 active:scale-95 cursor-pointer"
+                    >
+                      <div className="p-1.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 group-hover:bg-amber-500 group-hover:text-white transition-colors">
+                        <Lock className="h-4 w-4" />
+                      </div>
+                      <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider">
+                        Fitur Premium
+                      </span>
+                      <ChevronRight className="h-4 w-4 text-amber-600 dark:text-amber-400 group-hover:translate-x-1 transition-transform duration-300" />
+                    </Link>
+                  </div>
+                )}
+              </div>
             </Card>
           )}
 
