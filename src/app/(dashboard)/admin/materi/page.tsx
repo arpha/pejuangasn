@@ -342,7 +342,7 @@ export default function AdminMaterialsPage() {
                 </div>
 
                 {/* Content */}
-                <div className="space-y-1.5 md:col-span-3">
+                <div className="space-y-1.5 md:col-span-4">
                   <Label htmlFor="content" className="text-sm font-semibold">Isi Konten Materi * (Mendukung tag HTML & format Markdown)</Label>
                   <MarkdownEditor
                     id="content"
