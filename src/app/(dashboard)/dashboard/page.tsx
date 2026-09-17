@@ -563,7 +563,7 @@ export default function DashboardPage() {
 
 
           {/* Rekomendasi Belajar Pintar */}
-          {(totalCompleted > 0 || !isPremium) && (
+          {totalCompleted > 0 && (
             <Card className="bg-card border-border shadow-sm overflow-hidden relative bg-gradient-to-br from-indigo-500/[0.02] via-transparent to-amber-500/[0.02]">
               <div className="absolute top-0 right-0 h-24 w-24 bg-gradient-to-bl from-indigo-500/10 via-transparent to-transparent rounded-bl-full pointer-events-none" />
               <CardHeader className="pb-2">
@@ -592,17 +592,13 @@ export default function DashboardPage() {
                     </div>
                   </div>
 
-                  {(weakSubCategories.length > 0 || !isPremium) && (
+                  {weakSubCategories.length > 0 && (
                     <div className="pt-2 space-y-2">
                       <p className="text-xs font-bold text-foreground flex items-center gap-1">
                         ⚠️ Sub-topik Lemah Anda (Akurasi &lt; 80%):
                       </p>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {(weakSubCategories.length > 0 ? weakSubCategories : [
-                          { name: 'Anti Radikalisme', category: 'TKP', accuracy: 0 },
-                          { name: 'Deret', category: 'TIU', accuracy: 0 },
-                          { name: 'Nasionalisme', category: 'TWK', accuracy: 0 }
-                        ]).map((sub, index) => (
+                        {weakSubCategories.map((sub, index) => (
                           <div key={index} className="p-3 bg-muted/40 border border-border rounded-lg space-y-1">
                             <div className="flex justify-between items-center text-xs">
                               <span className="font-semibold text-foreground truncate">{sub.name} ({sub.category})</span>
