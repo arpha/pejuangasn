@@ -1,13 +1,15 @@
-'use me';
+'use client';
 import React, { useState, useRef } from 'react';
 import { 
   Bold, Italic, Heading2, List, ListOrdered, 
-  Quote, Code, Link as LinkIcon, Image as ImageIcon, 
-  Table as TableIcon, Eye, Edit3, Sparkles, Boxes
+  Quote, Code, Link as LinkIcon, Image as ImageIcon, Upload,
+  Table as TableIcon, Eye, Edit3, Sparkles, Boxes, Loader2
 } from 'lucide-react';
+import { toast } from 'sonner';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
 import TableBuilderModal from '@/components/TableBuilderModal';
 import ExampleBuilderModal from '@/components/ExampleBuilderModal';
+import { compressImage } from '@/lib/image';
 
 interface MarkdownEditorProps {
   value: string;
@@ -31,7 +33,9 @@ export default function MarkdownEditor({
   const [activeTab, setActiveTab] = useState<'write' | 'preview'>('write');
   const [isTableModalOpen, setIsTableModalOpen] = useState<boolean>(false);
   const [isExampleModalOpen, setIsExampleModalOpen] = useState<boolean>(false);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const insertMarkdown = (before: string, after: string = '') => {
     const textarea = textareaRef.current || (document.getElementById(id) as HTMLTextAreaElement);
@@ -169,6 +173,112 @@ export default function MarkdownEditor({
     }, 0);
   };
 
+  // Handle image file upload
+  const handleImageUpload = async (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      toast.error('File yang dipilih bukan gambar.');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Ukuran file terlalu besar. Maksimal 5MB.');
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      // Compress the image first
+      const compressedBlob = await compressImage(file, 1200, 1200, 0.8);
+
+      // Prepare form data
+      const formData = new FormData();
+      formData.append('file', compressedBlob, file.name);
+
+      // Upload via API route
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        throw new Error(result.error || 'Gagal mengunggah gambar');
+      }
+
+      // Insert markdown image syntax at cursor position
+      const imageMarkdown = `\n![${file.name.replace(/\.[^/.]+$/, '')}](${result.url})\n`;
+      
+      const textarea = textareaRef.current || (document.getElementById(id) as HTMLTextAreaElement);
+      if (textarea) {
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const currentText = textarea.value;
+        const newText = currentText.substring(0, start) + imageMarkdown + currentText.substring(end);
+        onChange(newText);
+
+        setTimeout(() => {
+          textarea.focus();
+          const newPos = start + imageMarkdown.length;
+          textarea.setSelectionRange(newPos, newPos);
+        }, 0);
+      } else {
+        onChange(value + imageMarkdown);
+      }
+
+      toast.success('Gambar berhasil diunggah!');
+    } catch (err) {
+      const error = err as Error;
+      toast.error(error.message || 'Gagal mengunggah gambar.');
+    } finally {
+      setIsUploading(false);
+      // Reset file input so the same file can be selected again
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  // Handle file input change
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleImageUpload(file);
+    }
+  };
+
+  // Handle drag and drop on textarea
+  const handleDrop = (e: React.DragEvent<HTMLTextAreaElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+      handleImageUpload(file);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLTextAreaElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  // Handle paste with image
+  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const items = e.clipboardData?.items;
+    if (items) {
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.startsWith('image/')) {
+          e.preventDefault();
+          const file = items[i].getAsFile();
+          if (file) {
+            handleImageUpload(file);
+          }
+          return;
+        }
+      }
+    }
+  };
+
   const handleToolbarButtonMouseDown = (e: React.MouseEvent) => {
     // Prevent button click from stealing focus from textarea
     e.preventDefault();
@@ -289,11 +399,35 @@ export default function MarkdownEditor({
               type="button"
               onMouseDown={handleToolbarButtonMouseDown}
               onClick={() => insertMarkdown('![Deskripsi Gambar](', ')')}
-              title="Sisipkan Gambar"
+              title="Sisipkan Gambar (URL Manual)"
               className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
             >
               <ImageIcon className="h-4 w-4" />
             </button>
+
+            {/* IMAGE UPLOAD BUTTON */}
+            <button
+              type="button"
+              onMouseDown={handleToolbarButtonMouseDown}
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              title="Unggah Gambar dari Komputer (atau Drag & Drop / Paste)"
+              className="flex items-center gap-1.5 px-2 py-1 text-xs font-bold text-sky-600 dark:text-sky-400 bg-sky-500/10 hover:bg-sky-500/20 rounded-lg transition-colors ml-1 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isUploading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Upload className="h-4 w-4" />
+              )}
+              <span>{isUploading ? 'Mengunggah...' : '+ Gambar'}</span>
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              className="hidden"
+              onChange={handleFileInputChange}
+            />
 
             {/* TABLE BUILDER BUTTON */}
             <button
@@ -343,9 +477,13 @@ export default function MarkdownEditor({
             rows={rows}
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            placeholder={placeholder}
-            className="w-full p-4 text-sm md:text-base outline-none bg-transparent font-sans leading-relaxed text-foreground min-h-[240px] resize-y"
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+            onPaste={handlePaste}
+            placeholder={isUploading ? 'Sedang mengunggah gambar...' : placeholder}
+            className={`w-full p-4 text-sm md:text-base outline-none bg-transparent font-sans leading-relaxed text-foreground min-h-[240px] resize-y ${isUploading ? 'opacity-60' : ''}`}
             required={required}
+            disabled={isUploading}
           />
         ) : (
           <div className="p-5 overflow-y-auto min-h-[240px] max-h-[500px] border-t border-border bg-card dark:bg-card/40">
